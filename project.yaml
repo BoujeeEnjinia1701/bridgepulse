@@ -1,0 +1,17 @@
+# Card metadata consumed by https://designmolecule.com
+name: BridgePulse
+slug: bridgepulse
+area: Smart Cities
+status: concept          # concept | design | prototype | tested | released
+shortlisted: false
+pitch: >-
+  A vibration and strain monitor for small bridges and footbridges that tracks natural frequency and strain over time to flag changes that need inspection.
+problem: >-
+  Many small bridges are inspected rarely, and deterioration is found late.
+budget_usd: 250
+difficulty: 3  # 1 easiest, 5 hardest
+hero_image: media/hero.png
+licenses:
+  hardware: CERN-OHL-S-2.0
+  software: MIT
+tags: [smart-cities, open-hardware, cern-ohl-s]
