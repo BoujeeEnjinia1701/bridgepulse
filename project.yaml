@@ -1,6 +1,7 @@
 # Card metadata consumed by https://designmolecule.com
 name: BridgePulse
 slug: bridgepulse
+repo: BoujeeEnjinia1701/bridgepulse         # GitHub repository, shown on every drawing and render
 area: Smart Cities
 trl: 3                   # Technology Readiness Level, see .kit/STANDARDS.md section 9
 trl_target: 3
