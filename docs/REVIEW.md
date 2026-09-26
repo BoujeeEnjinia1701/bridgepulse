@@ -35,6 +35,8 @@ Requirements not met or at risk:
 
 ### Proposed, awaiting Amish
 
+Update 2026-09-25: items 1 to 7 and 9 are now **Decided by Amish, 2026-09-25: go with recommendation** (BRP-DDR-001 D1 to D8, BRP-DDR-002). Items 8 and 10 had no recommendation and remain "Proposed, awaiting Amish".
+
 1. **Budget (R12).** Options: (a) keep $250 and redefine R12 as "BridgePulse-specific parts $250 or less", treating the FieldNode core as a shared component costed in its own repo; (b) raise `budget_usd` to $350; (c) cut cost with a cheaper accelerometer, which would likely fail R1. Recommendation: (a), with the complete system cost always stated beside it. `project.yaml` is unchanged.
 2. **Ambient vibration only**, no shaker or impact hammer. Recommendation: yes for TRL 3; revisit if quiet footbridges give no clear peaks.
 3. **Hourly 10 minute windows** rather than continuous recording (about 15 mW against about 84 mW). Recommendation: windows.
@@ -104,13 +106,15 @@ Design changes made by the calculations, within the adopted choices: the mountin
 
 ### Decisions recorded (BRP-DDR-001)
 
-Adopted as recommended for TRL 3 under Amish's 2026-09-25 instruction, open for his review: D1 keep `budget_usd` at $250 and redefine R12 as BridgePulse-specific parts, complete cost stated beside it (applied to R12; no new budget figure was recommended, so `budget_usd` is unchanged); D2 ambient vibration only; D3 hourly 10 minute windows; D4 hub on the girder, FieldNode on a post; D5 foil half-bridges with dummies; D6 one accelerometer at midspan; D7 RP2040 class controller; D8 engineer-only alerts, status-only public view; D9 temperature-compensated trend with a four-week minimum baseline; D10 built on FieldNode, TwinKit and CityTwin; D11 no change to pitch or problem (none was recommended).
+Decided by Amish, 2026-09-25: go with recommendation (recorded at this session as adopted for TRL 3, open for his review; see BRP-DDR-002): D1 keep `budget_usd` at $250 and redefine R12 as BridgePulse-specific parts, complete cost stated beside it (applied to R12; no new budget figure was recommended, so `budget_usd` is unchanged); D2 ambient vibration only; D3 hourly 10 minute windows; D4 hub on the girder, FieldNode on a post; D5 foil half-bridges with dummies; D6 one accelerometer at midspan; D7 RP2040 class controller; D8 engineer-only alerts, status-only public view; D9 temperature-compensated trend with a four-week minimum baseline; D10 built on FieldNode, TwinKit and CityTwin; D11 no change to pitch or problem (none was recommended).
 
 ### Still awaiting Amish
 
 1. **O1, FieldNode port pinout and protocol.** No recommendation; this repo assumes FieldNode's candidate pinout with RS-485 and a 5 V rail, as a working assumption only.
 2. **O2, first host bridge and co-design partner.** No preference stated.
 3. **O3, data ownership and what is published** beyond monitoring status. No recommendation.
+Update 2026-09-25: items 4 to 7 are now **Decided by Amish, 2026-09-25: go with recommendation** (BRP-DDR-002, D12 to D15). O1 to O3 remain "Proposed, awaiting Amish".
+
 4. **New, R2 and people's mass.** Options: (a) gate out record segments while someone is on the span, using the acceleration envelope or the strain channel, and estimate frequency from the rest; (b) regress each hourly frequency on a load indicator (strain mean, RMS acceleration) in TwinKit; (c) keep R2 at 0.2 % only for bridges whose modal mass is at least 20 times a walker's mass, and state a looser target (for example 1 % hourly, with daily averaging) for light footbridges. Recommendation: (a) and (b) together, checked on recorded data before any change to R2; R2 is unchanged here.
 5. **New, reduced payload (R7).** An 11-byte summary at US915 DR0 and AS923 DR2 with dwell time. Recommendation: adopt once the region is known (FND-DDR-001, O1). Not applied.
 6. **New, cold-range temperature check (R5).** Options: accept ±0.5 °C only above -10 °C, add an ice-point and a second reference check, or use a probe specified to -20 °C. Recommendation: ice-point check plus a probe specified over the full range if one fits the $6 margin. Not applied.
@@ -142,3 +146,63 @@ Suggestions only, not in the repo: analyze the public Z24 record, or another ope
 ### Recommended next step
 
 TRL 4 is on hold by Amish's instruction; this repo stops at TRL 3. Amish's review is needed on BRP-DDR-001 (D1 to D11), on O1 to O3 and on new items 4 to 7 above, item 4 first because it decides whether the method suits light footbridges. For the record only, TRL 4 would need: a bench build of the hub on a girder specimen; a lab test report (TST, `environment: lab`) covering accelerometer noise and the mounting resonance of the jacked plate, frequency estimates from recorded footfall with people of known mass, gauge drift and thermal mismatch, probe accuracy including below -10 °C, and hub energy per record through a FieldNode port; and build log entries. None of this has been started.
+
+## Session 2026-09-25: recommendations accepted
+
+On 2026-09-25 Amish wrote: "i accept all your recommendations, go with them across all repos." Every item with a recommendation is now **Decided by Amish, 2026-09-25: go with recommendation**, recorded in `docs/decisions/0002-recommendations-accepted.md` (BRP-DDR-002 v0.1). BRP-DDR-001 is revised to v0.2 with D1 to D11 marked decided.
+
+### Decisions applied and what changed
+
+| Decision | Change | Before | After |
+| --- | --- | --- | --- |
+| D1 to D11 (BRP-DDR-001) | Status wording only; `budget_usd` stays at $250 for the BridgePulse-specific parts, pitch and problem unchanged | Adopted for TRL 3, open for review | Decided |
+| D12, R2 and people's mass | Load gating in the hub (gate from the strain step, 0.25 s pad, 10 dB and damping acceptance rule) plus a load regression in TwinKit; simulated in BRP-CAL-001 v0.2, B10 to B12 | Scatter 0.45 % at 5 crossings (simple count; 1.5 to 3.1 % in the new time-varying simulation); R2 not met | 0.015 % or less gated (1 to 20 crossings per record; 80 % of records accepted with one crossing); R2 at risk, target unchanged |
+| D13, reduced payload | 11-byte summary where the data rate allows 11 bytes; R7 restated | 36 bytes only; R7 at risk | 36 or 11 bytes (371 ms at SF10); R7 met on paper (AS923 limit assumed) |
+| D14, cold-range temperature | TMP1826 class probe in a stainless sheath plus an ice-point check | DS18B20 class, ±0.5 °C from −10 °C; $4.00 each; R5 at risk | ±0.3 °C from −40 to +105 °C; $6.00 each; R5 met on paper |
+| D15, cost margin | No change; contingency savings recorded | $244.00 specific, $6.00 margin; $370.00 complete | $248.00 specific, $2.00 margin (0.8 %); $374.00 complete |
+
+Files changed: BRP-PRB-001 v0.4, BRP-PRC-001 v0.4, BRP-REQ-001 v0.4, BRP-CAL-001 v0.2 with `docs/04-calcs/sizing.py`, BRP-DDR-001 v0.2, new BRP-DDR-002 v0.1, `bom/bom.csv` (item 6), `bom/bom-notes.md`, `cad/src/sheets.py` and BRP-DWG-001 at Rev P2 (probe note added; notes box moved up so the last line clears the title block), `cad/src/concept_media.py` (key figures), `README.md`, `project.yaml` (evidence list only). `cad/src/model.py` geometry is unchanged; STEP and STL were re-exported. All media and PDFs were regenerated with the designmolecule.com footer.
+
+The CAL note also corrects a v0.1 wording error: the walker-mass scatter in B8 counts crossings inside the 10 minute record, not crossings an hour.
+
+README: "What sparked the idea" rewritten around the 1967 Silver Bridge collapse and the National Bridge Inspection Standards of 1971 (FHWA source); the reference to a September 2026 review of the lab's research areas was removed. BRP-PRB-001 did not attribute the idea to a review.
+
+### Requirement status (BRP-CAL-001 v0.2, Table 5)
+
+0 not met, 3 at risk, 3 not verifiable at TRL 3, 4 met on paper, 3 met by design (was 1, 4, 3, 2, 3).
+
+| ID | Status | Key number |
+| --- | --- | --- |
+| R2 Track frequencies | At risk | 0.015 % or less with load gating in simulation; to be checked on recorded data |
+| R10 Outdoor life | At risk | FieldNode heat not met in its own repo; coating life unknown |
+| R12 Cost | At risk | $248.00 against $250 (0.8 % margin); $374.00 complete |
+| R3 Change detection | Not verifiable at TRL 3 | Needs a daily residual of 0.75 % or less; the traffic term falls to 0.010 % with gating |
+| R4 Strain | Not verifiable at TRL 3 (drift) | 0.09 µε RMS; range met |
+| R8 Fitting | Not verifiable at TRL 3 (time) | 2.8 h estimate |
+| R5, R6, R7, R9 | Met on paper | ±0.3 °C; 16.9 mW; 36 or 11 bytes; 10 mm below the soffit |
+| R1, R11, R13 | Met by design | |
+
+### Still awaiting Amish
+
+1. **O1, FieldNode port pinout and protocol.** No recommendation.
+2. **O2, first host bridge and co-design partner.** No preference stated.
+3. **O3, data ownership and what is published.** No recommendation.
+4. **O4, LoRaWAN region for the first installation** (FND-DDR-001, O1). No recommendation here; D13 makes R7 independent of it.
+
+### Cross-repo actions
+
+- **TwinKit:** host the load regression of D12 (hourly frequency against strain mean and RMS acceleration) beside the temperature model.
+- **FieldNode:** (1) review seating its V-block clamps on a 50 mm square handrail post, whose 70.7 mm diagonal is at the 71 mm upper fit; (2) make the payload limit of the current data rate available to the sensor port so the hub can pick the 11-byte summary (D13); (3) agree the port pinout (O1).
+- **CalRig:** its chamber does not reach the cold range, so the ice-point check of D14 is done outside it.
+
+No other repo was edited.
+
+### Verification and gaps
+
+- WebFetch confirmed the TMP1826 accuracy (Texas Instruments product page) and the EU868 and US915 payload limits (The Things Network regional pages). The AS923 dwell-time limit could not be fetched (LoRa Alliance site blocked) and stays an assumption. The ADS1220 noise figure and RP2040 temperature range remain assumptions, as before.
+- The gating simulation is optimistic: one mode, an idealized walker, a perfect gate and no wind while people cross. Its gated scatter is below the random-excitation floor because the free decays after each crossing are clean in the model.
+- The TMP1826 probe is a made part (sensor potted in a sheath); its $6.00 price is indicative.
+
+### TRL 4
+
+TRL 4 remains on hold by Amish's instruction. The recorded-data check of load gating (D12), the ice-point and CalRig checks of the new probes (D14) and quotes for the BOM (D15) are decided but on hold. No build, test, purchase, PCB or firmware work was started.

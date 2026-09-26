@@ -3,7 +3,7 @@ doc_id: BRP-CAL-001
 title: BridgePulse sizing calculations
 project: BridgePulse
 doc_type: Calculation
-version: "0.1"
+version: "0.2"
 status: Draft
 date: '2026-09-25'
 author: Amish Chadha
@@ -13,17 +13,21 @@ revisions:
   date: '2026-09-25'
   author: Amish Chadha
   change: First issue for TRL 3 (bridge dynamics, excitation and frequency precision by simulation, change detection statistics, strain, temperature, power, data and uplink, mounting stiffness and clearance, installation time, outdoor life, cost)
+- version: "0.2"
+  date: '2026-09-25'
+  author: Amish Chadha
+  change: Recommendations accepted by Amish (DDR-002); load gating simulated (B10 to B12, C4), TMP1826 class probes (E), 11-byte reduced summary and regional limits checked (G), cost (K), results table (L)
 ---
 
 # BridgePulse sizing calculations
 
-On paper, BridgePulse can measure what it sets out to measure, but on a light footbridge the people crossing it get in the way of the answer. Of its thirteen requirements, five are met (two by calculation, three by design), four are at risk, three cannot be verified at TRL 3, and one is not met. The miss is R2, the day-to-day repeatability of the tracked frequency. The instrument itself is good enough: a simulation of the hourly record shows that, with a curve fit in place of simple peak picking, the scatter from sensor noise is 0.05 % at a modest 100 µg of bridge response, close to the theoretical floor. But on the 7 m example footbridge one 75 kg walker adds enough mass to lower the first mode by about 5 % while they cross, so the hourly estimate moves with who happened to walk over, and the 0.2 % target would need about 26 single crossings every hour. R3, the 1 % change detection, then depends on how well a model can remove that effect together with temperature; this note sets the target that model must meet (a daily residual of 0.75 % or less), which only field data can confirm. The calculations also changed the mounting: the TRL 2 plate, held only at the bottom flange, would have resonated at about 77 Hz, too close to the measured band, so the plate now stands on the bottom flange and is jacked against the top flange (126 to 253 Hz). Every number in this note is printed by `docs/04-calcs/sizing.py`; the tag in brackets, for example [A3], is the line of that script's output that carries it.
+On paper, BridgePulse can measure what it sets out to measure, provided it ignores the moments when people are on a light footbridge. Of its thirteen requirements, seven are met (four by calculation, three by design), three are at risk, three cannot be verified at TRL 3, and none is now shown as not met. The instrument itself is good enough: a simulation of the hourly record shows that, with a curve fit in place of simple peak picking, the scatter from sensor noise is 0.05 % at a modest 100 µg of bridge response, close to the theoretical floor. But on the 7 m example footbridge one 75 kg walker adds enough mass to lower the first mode by about 5 % while they cross, so an estimate taken over the whole record moves with who happened to walk over. Version 0.2 applies the decision recorded in BRP-DDR-002: the hub gates out each crossing, found from the strain step, and fits the rest of the record. In a time-varying simulation this cuts the scatter from 1.5 to 3.1 % to 0.015 % or less, so R2 moves from not met to at risk until recorded data confirm it. R3, the 1 % change detection, depends on how well a model can remove temperature and any remaining load effect; this note sets the target that model must meet (a daily residual of 0.75 % or less), which only field data can confirm. Version 0.2 also meets R5 on paper with a TMP1826 class probe and R7 with an 11-byte reduced summary, at a cost of $4 that leaves a $2.00 margin on R12. The calculations also changed the mounting: the TRL 2 plate, held only at the bottom flange, would have resonated at about 77 Hz, too close to the measured band, so the plate now stands on the bottom flange and is jacked against the top flange (126 to 253 Hz). Every number in this note is printed by `docs/04-calcs/sizing.py`; the tag in brackets, for example [A3], is the line of that script's output that carries it.
 
 > **Safety:** These are first-principles estimates for a paper proof of concept. They say nothing about whether any bridge is safe. BridgePulse supports inspection by qualified engineers and never replaces it. Installation is work at height, over water or near traffic, and may disturb lead paint; see BRP-PRC-001, Safety.
 
 ## Scope and method
 
-The note checks every requirement in BRP-REQ-001 v0.3 against the design in BRP-PRC-001 v0.3 and the parametric model `cad/src/model.py`. The script imports the model's `PARAMS`, `derived()` and part solids, so the girder section, plate, hub position, clearances and part volumes used here are the ones in the STEP files and in drawing BRP-DWG-001. It also reads `bom/bom.csv` and `budget_usd` in `project.yaml`. Run it from the repo root with `python docs/04-calcs/sizing.py`; it takes about 10 s, most of it the simulation in section B, which uses a fixed random seed so its figures repeat exactly.
+The note checks every requirement in BRP-REQ-001 v0.4 against the design in BRP-PRC-001 v0.4 and the parametric model `cad/src/model.py`. The script imports the model's `PARAMS`, `derived()` and part solids, so the girder section, plate, hub position, clearances and part volumes used here are the ones in the STEP files and in drawing BRP-DWG-001. It also reads `bom/bom.csv` and `budget_usd` in `project.yaml`. Run it from the repo root with `python docs/04-calcs/sizing.py`; it takes about 20 s, most of it the simulations in section B, which use fixed random seeds so its figures repeat exactly.
 
 The design case is the example bridge of BRP-PRC-001: a 7 m steel footbridge, 6.4 m between bearings, on two IPE 360 class girders at 1.2 m centers with a 50 mm timber deck, monitored at midspan, with a FieldNode core on the midspan handrail post reporting hourly over LoRaWAN.
 
@@ -41,7 +45,8 @@ The design case is the example bridge of BRP-PRC-001: a 7 m steel footbridge, 6.
 | Spectra | Hann window, 16,384-point segments, 50 % overlap over a 600 s record | As BRP-PRC-001 |
 | Strain | Gauge factor 2.0; 350 Ω gauges; 3.3 V excitation; ADC noise 0.15 µV RMS at 20 SPS and gain 128; gauge-to-dummy thermal mismatch 1 µε/K | ADS1220 class; the noise figure is assumed because the maker's product page does not state one |
 | Power | 5 V switched rail from the FieldNode port, 85 % buck in the hub, 90 % FieldNode rail converters; the hub is off between records | FieldNode D5 and FND-CAL-001 |
-| Radio | 13 bytes of LoRaWAN overhead; 125 kHz, coding rate 4/5, 8-symbol preamble, explicit header; regional payload limits of the LoRaWAN Regional Parameters (EU868, US915, AS923) | Standard values; the regional limits were not checked against the source in this session |
+| Radio | 13 bytes of LoRaWAN overhead; 125 kHz, coding rate 4/5, 8-symbol preamble, explicit header; regional payload limits of the LoRaWAN Regional Parameters (EU868, US915, AS923) | EU868 (51 bytes at DR0 to DR2) and US915 (11 bytes at DR0, 53 at DR1) checked against The Things Network's [EU868](https://www.thethingsnetwork.org/docs/lorawan/regional-parameters/eu868/) and [US915](https://www.thethingsnetwork.org/docs/lorawan/regional-parameters/us915/) pages; the AS923 dwell-time limits are assumed |
+| Load gating | Crossing found from the strain step and gated out with 0.25 s either side, edges tapered over 0.1 s; ambient (wind) response 10 µg RMS with nobody on the span; single mode, walker as a moving mass and heel-strike train | Assumed; the ambient level stands for a quiet bridge and the footfall model is idealized |
 | Wind | 35 m/s gust, air 1.225 kg/m³, drag 1.3 on the FieldNode enclosure; 52.2 N on its panel | FND-CAL-001 |
 
 ## A. Example bridge dynamics (R2, R3)
@@ -69,8 +74,19 @@ The design case is the example bridge of BRP-PRC-001: a 7 m steel footbridge, 6.
 | 1,000 µg | 100 % | 0.220 % | 0.032 % |
 
 - **Change of method.** Peak picking never reaches the 0.2 % of R2, however strong the signal, because the averaged spectrum is still noisy across the 31 bins of the peak. The curve fit reaches 0.2 % from 30 µg RMS [B6] and approaches the theoretical floor for a randomly excited mode, √(ζ / 2πfT) = 0.033 % [B6a]. The reduce step in BRP-PRC-001 now uses the curve fit.
-- **Mass loading.** Because each crossing both excites the mode and loads it, the hourly estimate is weighted toward the moments when someone is near midspan: an energy-weighted crossing lowers it by 5.3 %, and the spread of walker masses (50 to 100 kg) adds 1.01 % of scatter per crossing [B7]. The scatter falls with traffic, to 0.45 % at 5 crossings an hour and 0.23 % at 20 [B8]. R2 would need about 26 single crossings every hour, and fails outright when two people cross together, which biases that hour by 10.5 % [B9].
-- **R2 is not met** on the example footbridge. Ways to meet it are set out in `docs/REVIEW.md` as proposals: gating out segments with a person on the span (from the acceleration envelope or the strain step), fitting frequency against a load indicator, or restricting the 0.2 % target to bridges whose modal mass is large compared with a walker. R1 is met by design on the datasheet.
+- **Mass loading.** Because each crossing both excites the mode and loads it, an estimate over the whole record is weighted toward the moments when someone is near midspan: an energy-weighted crossing lowers it by 5.3 %, and the spread of walker masses (50 to 100 kg) adds 1.01 % of scatter per crossing [B7]. On that simple count the scatter falls with traffic, to 0.45 % at 5 crossings during the 10 minute record and 0.23 % at 20 [B8]; v0.1 wrote these as crossings an hour, but the count is of crossings inside the record. Ungated, R2 would need about 26 single crossings in every record, and fails outright when two people cross together, which biases that record by 10.5 % [B9].
+- **Load gating (BRP-DDR-002).** The hub now drops the part of each record when someone is on the span, found from the strain step (one walker gives 3.2 µε against 0.09 µε resolution, section D), with 0.25 s either side, and fits the rest. What is left is the free decay after each crossing, at the unloaded frequency, plus ambient response. The script simulates this with a time-varying single-mode model, stepping the walker's mass and heel strikes across the span sample by sample.
+
+*Table 2a. Hourly estimate with and without load gating, 30 simulated records per case [B10].*
+
+| Crossings in the record | Ungated bias | Ungated scatter | Gated bias | Gated scatter (1σ) | Records accepted | Record gated out |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | −4.73 % | 3.06 % | −0.030 % | 0.015 % | 80 % | 0.9 % |
+| 5 | −5.16 % | 2.50 % | −0.037 % | 0.010 % | 100 % | 4.4 % |
+| 20 | −6.26 % | 1.48 % | −0.039 % | 0.007 % | 100 % | 16.6 % |
+
+- **What the simulation shows.** The time-varying simulation gives a larger ungated scatter than the simple count of B8, because the frequency also moves with where the walker is. Gated, the scatter is 0.015 % or less, well inside the 0.2 % of R2, and the small bias moves by only 0.010 % between 1 and 20 crossings [B12]. The hub accepts a fit only if the peak stands 10 dB above the fitted noise and the fitted damping is 0.2 to 5 %; with one crossing and a quiet 10 µg ambient response, 20 % of records fail that test and are reported as "no clear peak", not as a shift [B11]. An hour with nobody crossing on a quiet day gives no estimate at all.
+- **R2 is at risk,** no longer not met. The target is unchanged, as BRP-DDR-002 requires, and the method must be checked on recorded data (TRL 4, on hold). The simulation is optimistic: one mode, an idealized walker, a perfect gate and no wind during crossings. The load regression in TwinKit (BRP-DDR-002) remains as a second line for any load effect the gate misses. R1 is met by design on the datasheet.
 
 ## C. Change detection statistics (R3)
 
@@ -84,7 +100,7 @@ The design case is the example bridge of BRP-PRC-001: a 7 m steel footbridge, 6.
 | 7 days | 0.58 % | 0.65 % |
 | 14 days (R3) | 0.75 % | 0.90 % |
 
-- **Budget.** A 0.5 K temperature reading error costs only 0.0075 % [C3]. Random walker scatter averages down to 0.09 % over a day at 5 crossings an hour, but a systematic change in traffic does not: a 10 % change in the share of hours with two people on the span shifts the daily mean by 0.53 % [C3], most of the 0.75 % allowance. The statistics also assume independent days, which is optimistic.
+- **Budget.** A 0.5 K temperature reading error costs only 0.0075 % [C3]. Random walker scatter averages down to 0.09 % over a day at 5 crossings a record, but a systematic change in traffic does not: a 10 % change in the share of hours with two people on the span shifts the daily mean by 0.53 % [C3], most of the 0.75 % allowance, if records are not gated. With load gating that traffic term falls to the 0.010 % bias span of B12 [C4], leaving the allowance to temperature and the rest of the model. The statistics also assume independent days, which is optimistic.
 - **R3 cannot be verified at TRL 3.** It is achievable if temperature and load together can be modeled to a daily residual of 0.75 % or less. Whether they can is a question for field data or for public benchmark data such as the Z24 record; no such data were analyzed in this session.
 
 ## D. Strain (R4)
@@ -97,7 +113,8 @@ The design case is the example bridge of BRP-PRC-001: a 7 m steel footbridge, 6.
 
 ## E. Temperature (R5)
 
-- The DS18B20 class probe is specified at ±0.5 °C from -10 to +85 °C on the maker's page, with no accuracy stated from -20 to -10 °C [E1]. The effect of that error on the frequency compensation is negligible [E2]. **R5 is at risk** below -10 °C; CalRig's chamber does not reach that range (CLR-CAL-001), so an ice-point check and a second reference would be needed.
+- Under BRP-DDR-002 the probes are now TMP1826 class 1-Wire sensors potted in a stainless sheath. The maker specifies the WSON package at ±0.3 °C from −40 to +105 °C and ±0.2 °C from +10 to +45 °C ([Texas Instruments](https://www.ti.com/product/TMP1826)) [E1]. The DS18B20 class probe of v0.1 was specified at ±0.5 °C only from −10 °C upward. The effect of a 0.5 K error on the frequency compensation is negligible in any case [E2].
+- CalRig's chamber does not reach below about 9 °C (CLR-CAL-001), so each probe gets an ice-point check at 0 °C and a comparison against a reference in CalRig [E3]. **R5 is met on paper** on the datasheet; the checks are TRL 4 work.
 
 ## F. Power (R6)
 
@@ -123,7 +140,8 @@ The design case is the example bridge of BRP-PRC-001: a 7 m steel footbridge, 6.
 - **Raw data.** 1.90 MB per hour, 46 MB per day, 1.39 GB per month; a 32 GB card holds 22 months [G1], writing 16.7 GB (0.52 full-card writes) a year [G2]. An industrial card is specified for temperature, not wear.
 - **Summary.** The hourly summary is 36 bytes [G3], unchanged from TRL 2.
 - **Airtime.** At 49 bytes on air an uplink takes 98 ms at SF7, 329 ms at SF9, 575 ms at SF10 and 2,302 ms at SF12; 24 a day use 13.8 s at SF10 and 55.2 s at SF12, over the 30 s a day that FieldNode's R9 allows on The Things Network [G4].
-- **Regional limits.** The summary fits every EU868 data rate (51 bytes at SF10 to SF12) but not US915 DR0 or AS923 DR2 with dwell time (11 bytes); both allow 53 bytes one step faster, at SF9 [G5]. A reduced 11-byte summary for those rates is proposed [G6]. **R7 is at risk** until the region is chosen (FND-DDR-001, O1). On-site storage is met.
+- **Regional limits.** The summary fits every EU868 data rate (51 bytes at SF10 to SF12) but not US915 DR0 or AS923 DR2 with dwell time (11 bytes); both allow 53 bytes one step faster, at SF9 [G5]. The EU868 and US915 limits were checked against The Things Network's regional pages (Table 1); the AS923 limits are assumed.
+- **Reduced summary (BRP-DDR-002).** At an 11-byte data rate the hub sends 11 bytes: the first frequency (2), its peak amplitude (2), the two strain means (4), the steel temperature (2) and a status byte that carries the gated seconds (1); it takes 371 ms at SF10 [G6]. The hub picks it when FieldNode reports an 11-byte limit, so the region, still open in FieldNode (FND-DDR-001, O1), no longer decides whether R7 is met. **R7 is met on paper,** with the AS923 limit assumed. On-site storage is met.
 
 ## H. Mounting, mass and clearance (R8, R9)
 
@@ -143,7 +161,7 @@ The hub (IP67) hangs in shade under the deck, and its parts are rated for the ra
 
 ## K. Cost (R12)
 
-The BOM has nine lines, all priced. Under R12 as redefined in BRP-DDR-001 (D1), the BridgePulse-specific parts cost $244.00 against the $250 budget, a margin of $6.00 (2.4 %). The FieldNode core adds $126.00, costed in its own repo, for a complete monitor of $370.00, which is $120.00 over $250 [K1]. The TRL 3 changes added a separate industrial microSD card ($20), the RS-485 and buck converter modules and the jack-screw plate. **R12 is at risk** because the prices are indicative and the margin is thin.
+The BOM has nine lines, all priced. Under R12 as redefined in BRP-DDR-001 (D1) and decided in BRP-DDR-002, the BridgePulse-specific parts cost $248.00 against the $250 budget, a margin of $2.00 (0.8 %). The FieldNode core adds $126.00, costed in its own repo, for a complete monitor of $374.00, which is $124.00 over $250 [K1]. The TRL 3 changes added a separate industrial microSD card ($20), the RS-485 and buck converter modules and the jack-screw plate; v0.2 adds $4.00 for the TMP1826 class probes ($6.00 each against $4.00). **R12 is at risk** because the prices are indicative and the margin is thin; the first savings, if quotes come in higher, are a consumer high-endurance card and a cheaper accelerometer breakout that still meets R1.
 
 ## L. Results against every requirement
 
@@ -151,21 +169,21 @@ The BOM has nine lines, all priced. Under R12 as redefined in BRP-DDR-001 (D1), 
 
 | ID | Requirement | Value | Target | Status |
 | --- | --- | --- | --- | --- |
-| R2 | Track natural frequencies | Bin 0.0153 Hz; sensor-noise scatter 0.053 % at 100 µg (curve fit); walker-mass scatter 0.45 % at 5 crossings per hour | Bin 0.02 Hz; 0.2 % (1σ) over a steady day | **Not met** on the example footbridge |
-| R5 | Measure temperature | ±0.5 °C from -10 to +50 °C; not specified below -10 °C | ±0.5 °C over -20 to +50 °C | At risk |
-| R7 | Send and keep the data | 36 bytes hourly; 22 months on 32 GB; fits EU868 at every rate, US915 and AS923 only at SF9 or faster | 48 bytes within regional limits; 12 months on site | At risk |
+| R2 | Track natural frequencies | Bin 0.0153 Hz; sensor-noise scatter 0.053 % at 100 µg (curve fit); with load gating 0.015 % or less in simulation (1 to 20 crossings per record) | Bin 0.02 Hz; 0.2 % (1σ) over a steady day | At risk (met in simulation with gating; to be checked on recorded data) |
 | R10 | Survive outdoors | Hub in shade; FieldNode heat not met in its own repo; coating life unknown | IP67 and IP65; -20 to +50 °C; 5 years | At risk |
-| R12 | Affordable | $244.00 BridgePulse-specific; $370.00 complete | $250 BridgePulse-specific parts | At risk (2.4 % margin) |
+| R12 | Affordable | $248.00 BridgePulse-specific; $374.00 complete | $250 BridgePulse-specific parts | At risk (0.8 % margin) |
 | R3 | Flag structural change | Achievable if the daily residual after compensation is 0.75 % or less | 1 % within 14 days; one false flag per year | Not verifiable at TRL 3 |
 | R4 | Measure strain | 0.09 µε RMS; ±1,000 µε uses 6 % of full scale; drift unknown | 2 µε; ±1,000 µε; 5 µε per month | Not verifiable at TRL 3 (drift); resolution and range met on paper |
 | R8 | Fit without harming the structure | No drilling or welding; 2.8 h estimate | No drilling; 4 h for two people | Not verifiable at TRL 3 (time); fixing met by design |
+| R5 | Measure temperature | ±0.3 °C from −40 to +105 °C on the datasheet; ice-point check | ±0.5 °C over −20 to +50 °C | Met on paper (datasheet) |
+| R7 | Send and keep the data | 36 bytes, or 11 bytes where the limit is 11; 22 months on 32 GB; fits every listed data rate | 48 bytes within regional limits; 12 months on site | Met on paper (AS923 limit assumed) |
 | R6 | Stay within the FieldNode energy budget | 16.9 mW average at the port | 30 mW | Met on paper |
 | R9 | Keep clear of what passes under and over | 10 mm below the soffit; hub inside the girder outline | 15 mm | Met on paper |
 | R1 | Measure bridge acceleration | 22.5 µg/√Hz, 3 axes, 250 Hz output, 62.5 Hz filter corner | 25 µg/√Hz; 0.5 to 60 Hz | Met by design (datasheet) |
 | R11 | Protect privacy | No camera or microphone | Structural readings only | Met by design |
 | R13 | Present results responsibly | Wording rule in the precis; not yet implemented | No safety rating anywhere | Met by design |
 
-Counts: 1 not met, 4 at risk, 3 not verifiable at TRL 3, 2 met on paper, 3 met by design.
+Counts: 0 not met, 3 at risk, 3 not verifiable at TRL 3, 4 met on paper, 3 met by design (v0.1: 1 not met, 4 at risk, 3 not verifiable, 2 met on paper, 3 met by design).
 
 ## Checks against the TRL 2 figures
 
@@ -183,4 +201,4 @@ Counts: 1 not met, 4 at risk, 3 not verifiable at TRL 3, 2 met on paper, 3 met b
 | About 36 bytes per uplink; regional limits not checked | 36 bytes; does not fit US915 DR0 or AS923 DR2 | Reduced payload proposed |
 | Hub and clamps about 0.6 kg; FieldNode about 1.7 kg | 3.34 kg on the girder; FieldNode 2.41 kg | Precis updated |
 | Hub about 12 mm below the soffit | 10 mm (clamp jaw 8 mm) | Stands |
-| About $342 complete; $216 BridgePulse-specific | $370.00 complete; $244.00 BridgePulse-specific | BOM notes and precis updated |
+| About $342 complete; $216 BridgePulse-specific | $374.00 complete; $248.00 BridgePulse-specific (v0.1: $370.00 and $244.00) | BOM notes and precis updated |

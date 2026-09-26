@@ -1,4 +1,4 @@
-"""BridgePulse sizing calculations, BRP-CAL-001 v0.1 (TRL 3).
+"""BridgePulse sizing calculations, BRP-CAL-001 v0.2 (TRL 3).
 
 Run from the repo root:  python docs/04-calcs/sizing.py
 Prints every number quoted in docs/04-calcs/01-sizing.md. Each line carries a tag such as
@@ -55,7 +55,7 @@ V_RAIL, ETA_HUB, ETA_FN = 5.0, 0.85, 0.90
 T_WARM, T_PROC = 20.0, 60.0  # s gauge warm-up before the record; s post-processing after it
 FN_ALLOW = 100.0           # mW, FieldNode sensor allowance (FND-CAL-001 design value; 115 mW ceiling)
 
-print("BridgePulse sizing, BRP-CAL-001 v0.1")
+print("BridgePulse sizing, BRP-CAL-001 v0.2")
 print(f"Geometry from cad/src/model.py: girders {P['girder']} mm at +/-{P['gy']:.0f} mm, bearing span {P['bearing_span']:.0f} mm")
 
 # ------------------------------------------------------------------ A. Example bridge dynamics (R2, R3)
@@ -115,7 +115,8 @@ noise_sd = ACC_ND * math.sqrt(FS / 2)
 sim = {}
 def sdof_psd(f, logA, fn, z, logN):
     r = f / fn
-    return np.log(np.exp(logA) * (2 * z * r) ** 2 / ((1 - r ** 2) ** 2 + (2 * z * r) ** 2) + np.exp(logN))
+    with np.errstate(over="ignore"):
+        return np.log(np.exp(logA) * (2 * z * r) ** 2 / ((1 - r ** 2) ** 2 + (2 * z * r) ** 2) + np.exp(logN))
 
 
 for lvl_ug in (10, 30, 100, 300, 1000):
@@ -157,13 +158,98 @@ sd_mass = 0.75 * 0.5 * (50 / math.sqrt(12)) / M_mod
 tag("B7", f"Mass loading: an energy-weighted crossing lowers the estimate by {100 * cross[0]:.1f} %; walker mass spread "
           f"(50 to 100 kg) gives {100 * sd_mass:.2f} % per crossing")
 for n in (1, 5, 20):
-    tag("B8", f"Hourly scatter from walker mass with {n:>2} crossings per hour: {100 * sd_mass / math.sqrt(n):.2f} % (1 sigma)")
+    tag("B8", f"Scatter from walker mass alone, ungated, with {n:>2} crossings during the 10 min record: {100 * sd_mass / math.sqrt(n):.2f} % (1 sigma)")
 n_need = (sd_mass / 0.002) ** 2
-tag("B9", f"R2 (0.2 %) would need about {n_need:.0f} single crossings every hour, and fails whenever two people cross together "
+tag("B9", f"Ungated, R2 (0.2 %) would need about {n_need:.0f} single crossings in every record, and fails whenever two people cross together "
           f"({100 * 0.75 * 0.5 * 2 * WALKER / M_mod:.1f} % bias)")
+
+# Load gating (BRP-DDR-002, decision on review item 4): the hub drops the part of the record while a
+# walker is on the span, found from the strain step, plus 0.25 s each side, tapers the gate edges over
+# 0.1 s and fits the rest. The walker is simulated as a moving mass and a train of heel-strike impulses,
+# both weighted by the mode shape, in a time-varying SDOF model stepped exactly at each sample.
+AMB = 10e-6                 # g rms, ambient (wind) response with nobody on the span; quiet bridge (assumed)
+GATE_PAD = 0.25             # s either side of the strain-detected crossing
+
+
+def crossing(mass, rg, pad=6.0):
+    dt = 1 / FS
+    n_on = int(t_cross * FS)
+    n = n_on + int(pad * FS)
+    c = 2 * ZETA * w1 * M_mod
+    q = v = 0.0
+    acc = np.empty(n)
+    every = int(FS / STEP_HZ)
+    ph = int(rg.integers(every))
+    for i in range(n):
+        if i < n_on:
+            phi = math.sin(math.pi * i / n_on)
+            Mt = M_mod + mass * phi ** 2
+            if (i + ph) % every == 0:
+                v += IMPULSE * phi / Mt
+        else:
+            Mt = M_mod
+        wn = math.sqrt(K_mod / Mt)
+        z = c / (2 * Mt * wn)
+        wd = wn * math.sqrt(1 - z * z)
+        e = math.exp(-z * wn * dt)
+        cs, sn = math.cos(wd * dt), math.sin(wd * dt)
+        q, v = (e * (q * (cs + z * wn / wd * sn) + v / wd * sn),
+                e * (v * (cs - z * wn / wd * sn) - q * wn * wn / wd * sn))
+        acc[i] = -(c * v + K_mod * q) / Mt
+    return acc, n_on
+
+
+def fit_f(x):
+    f, pxx = signal.welch(x, FS, window="hann", nperseg=NSEG, noverlap=NSEG // 2)
+    band = (f > 5) & (f < 60)
+    fb, pb = f[band], np.log(pxx[band] + 1e-30)
+    k = int(np.argmax(pb))
+    win = np.abs(fb - fb[k]) < 1.5
+    try:
+        popt, _ = optimize.curve_fit(sdof_psd, fb[win], pb[win], p0=[pb[k], fb[k], 0.02, np.median(pb)], maxfev=4000)
+    except RuntimeError:
+        return np.nan
+    # acceptance rule in the hub: the fitted peak must stand 10 dB above the fitted noise floor and the
+    # fitted damping must be plausible (0.2 to 5 %); otherwise the hour is reported as "no clear peak"
+    if popt[0] - popt[3] < math.log(10) or not 0.002 <= abs(popt[2]) <= 0.05:
+        return np.nan
+    return popt[1]
+
+
+rg = np.random.default_rng(20260926)
+hann = np.hanning(int(0.1 * FS))
+gated = {}
+for ncross in (1, 5, 20):
+    ug, gt, frac = [], [], []
+    for _ in range(30):
+        x = signal.lfilter(bz, az, rg.standard_normal(nsamp + 2000))[2000:]
+        x *= AMB * G / x.std()
+        gate = np.ones(nsamp)
+        for s0 in rg.uniform(0, REC_S - 12, ncross):
+            a, n_on = crossing(rg.uniform(50, 100), rg)
+            i0 = int(s0 * FS)
+            x[i0:i0 + len(a)] += a[:nsamp - i0]
+            gate[max(i0 - int(GATE_PAD * FS), 0):min(i0 + n_on + int(GATE_PAD * FS), nsamp)] = 0
+        x = x / G + noise_sd * rg.standard_normal(nsamp)
+        taper = np.minimum(np.convolve(gate, hann / hann.sum(), "same"), gate)
+        ug.append(fit_f(x))
+        gt.append(fit_f(x * taper))
+        frac.append(1 - gate.mean())
+    ug, gt = 100 * (np.array(ug) / f1 - 1), 100 * (np.array(gt) / f1 - 1)
+    gated[ncross] = (np.nanmean(gt), np.nanstd(gt))
+    tag("B10", f"{ncross:>2} crossings in the record (30 simulated records, walkers 50 to 100 kg): ungated bias {np.nanmean(ug):+.2f} %, "
+               f"scatter {np.nanstd(ug):.2f} %; gated bias {np.nanmean(gt):+.3f} %, scatter {np.nanstd(gt):.3f} % (1 sigma), "
+               f"{100 * np.mean(~np.isnan(gt)):.0f} % of records accepted; {100 * np.mean(frac):.1f} % of the record gated out")
+tag("B11", f"Gating keeps the free decay after each crossing at the unloaded frequency; with the ambient response at an assumed "
+           f"{AMB * 1e6:.0f} ug an hour with nobody crossing gives no clear peak and is reported as missing, not as a shift")
+worst_g = max(sd for _, sd in gated.values())
+bias_span = max(b for b, _ in gated.values()) - min(b for b, _ in gated.values())
+tag("B12", f"Gated: worst scatter {worst_g:.3f} % against the 0.2 % of R2; the bias moves by {bias_span:.3f} % between 1 and 20 crossings, "
+           "so a change in traffic hardly moves the daily mean")
 result("R2", "Track natural frequencies",
-       f"Bin {nbin:.4f} Hz; instrument 1 sigma {sim[100][1]:.3f} % at 100 ug (curve fit); walker mass scatter {100 * sd_mass / math.sqrt(5):.2f} % at 5 crossings/h",
-       "Bin 0.02 Hz; 0.2 % (1 sigma) over a steady day", "**Not met** on the example footbridge")
+       f"Bin {nbin:.4f} Hz; instrument 1 sigma {sim[100][1]:.3f} % at 100 ug (curve fit); with load gating {worst_g:.3f} % or less "
+       f"in simulation (1 to 20 crossings per record)",
+       "Bin 0.02 Hz; 0.2 % (1 sigma) over a steady day", "At risk (met in simulation with gating; to be checked on recorded data)")
 result("R1", "Measure bridge acceleration", "22.5 ug/sqrt(Hz), 3 axes, 250 Hz output, filter corner 62.5 Hz",
        "25 ug/sqrt(Hz); 0.5 to 60 Hz", "Met by design (datasheet)")
 
@@ -181,6 +267,8 @@ for k in (7, 14):
 tag("C3", f"Residual budget items: temperature reading error 0.5 K gives {abs(DE_DT) / 2 * 0.5 * 100:.4f} %; "
           f"walker mass scatter at 5 crossings/h, 24 h, gives {100 * sd_mass / math.sqrt(5 * 24):.2f} % per day but a 10 % change in the share of "
           f"hours with two people on the span at once shifts the daily mean by {100 * cross[0] * 0.1:.2f} %")
+tag("C4", f"With load gating the traffic term falls to the {bias_span:.3f} % bias span of B12; temperature and the rest of the model "
+          "must then take the remainder of the allowance")
 result("R3", "Flag structural change",
        f"Works if the daily residual after compensation is {need[(14, 28)]:.2f} % or less (14 days, 4-week baseline)",
        "1 % within 14 days; 1 false flag per year", "Not verifiable at TRL 3")
@@ -212,10 +300,12 @@ result("R4", "Measure strain", f"{res:.2f} ue rms resolution; +/-1000 ue uses {s
 
 # ------------------------------------------------------------------ E. Temperature (R5)
 print("\nE. Temperature")
-tag("E1", "DS18B20 class probe: +/-0.5 degC from -10 to +85 degC (maker's page); no stated accuracy from -20 to -10 degC")
+tag("E1", "TMP1826 class 1-Wire probe (WSON package): +/-0.3 degC from -40 to +105 degC, +/-0.2 degC from +10 to +45 degC (maker's page); "
+          "the DS18B20 class probe of v0.1 was +/-0.5 degC only from -10 degC upward")
 tag("E2", f"Effect on compensation: 0.5 K error moves the steel-modulus correction by {abs(DE_DT) / 2 * 0.5 * 100:.4f} %, negligible against 1 %")
-result("R5", "Measure temperature", "+/-0.5 degC from -10 to +50 degC; not specified below -10 degC", "+/-0.5 degC over -20 to +50 degC",
-       "At risk (below -10 degC)")
+tag("E3", "Verification: an ice-point check (0 degC) of both probes plus a comparison against a reference in CalRig above about 10 degC")
+result("R5", "Measure temperature", "+/-0.3 degC from -40 to +105 degC on the datasheet; ice-point check", "+/-0.5 degC over -20 to +50 degC",
+       "Met on paper (datasheet)")
 
 # ------------------------------------------------------------------ F. Power (R6)
 print("\nF. Power")
@@ -271,9 +361,15 @@ limits = {"EU868 DR0 to DR2 (SF12 to SF10)": 51, "US915 DR0 (SF10)": 11, "US915 
           "AS923 with dwell time, DR2 (SF10)": 11, "AS923 with dwell time, DR3 (SF9)": 53}
 for k, v in limits.items():
     tag("G5", f"{k}: {v} bytes maximum; the {pl}-byte summary {'fits' if pl <= v else 'does not fit'}")
-tag("G6", "At US915 DR0 or AS923 DR2 a reduced 11-byte summary (first frequency, its amplitude, two strain means, steel temperature, status) is proposed")
-result("R7", "Send and keep the data", f"{pl} bytes hourly; {32e9 * 0.97 / month:.0f} months on 32 GB; fits EU868 at every rate, US915 and AS923 only at SF9 or faster",
-       "48 bytes within regional limits; 12 months on site", "At risk (US915 DR0, AS923 DR2)")
+small = {"first frequency, 1 mHz steps": 2, "its peak amplitude": 2, "two strain means, 0.1 ue steps": 4,
+         "steel temperature, 0.01 K steps": 2, "status incl. gated seconds": 1}
+pl_s = sum(small.values())
+tag("G6", f"Reduced summary for 11-byte data rates (BRP-DDR-002): {pl_s} bytes ({', '.join(f'{k} {v}' for k, v in small.items())}); "
+          f"{1000 * toa(pl_s + 13, 10):.0f} ms at SF10; the hub picks it when FieldNode reports an 11-byte limit")
+fits_all = all((pl if v >= pl else pl_s) <= v for v in limits.values())
+result("R7", "Send and keep the data", f"{pl} bytes, or {pl_s} bytes where the limit is 11; {32e9 * 0.97 / month:.0f} months on 32 GB; "
+       "fits every listed data rate", "48 bytes within regional limits; 12 months on site",
+       "Met on paper (AS923 limit assumed)" if fits_all else "At risk")
 
 # ------------------------------------------------------------------ H. Mounting, mass and clearance (R8, R9)
 print("\nH. Mounting, mass and clearance")
@@ -359,7 +455,7 @@ spec = tot - fn
 tag("K1", f"BOM {len(bom)} lines, all priced: BridgePulse-specific ${spec:.2f} against ${budget:.0f} (margin ${budget - spec:.2f}, "
           f"{(budget - spec) / budget:.1%}); FieldNode core ${fn:.2f}; complete monitor ${tot:.2f}, ${tot - budget:.2f} over ${budget:.0f}")
 result("R12", "Affordable", f"${spec:.2f} BridgePulse-specific (complete ${tot:.2f})", f"${budget:.0f} BridgePulse-specific parts",
-       "At risk (2 % margin)" if budget - spec < 0.05 * budget and spec <= budget else ("Met on paper" if spec <= budget else "**Not met**"))
+       f"At risk ({(budget - spec) / budget:.1%} margin)" if budget - spec < 0.05 * budget and spec <= budget else ("Met on paper" if spec <= budget else "**Not met**"))
 
 # ------------------------------------------------------------------ L. Results
 print("\nL. Results against every requirement")

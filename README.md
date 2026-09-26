@@ -47,7 +47,7 @@ Findings also have to reach someone who acts. The Fern Hollow Bridge in Pittsbur
 
 ## What sparked the idea
 
-It came out of a September 2026 review of Design Molecule's applied research areas against the open projects already in the lab. It feeds CityTwin. The trigger in the wider world is the gap between inspection and action shown by the 2022 Fern Hollow Bridge collapse ([NTSB](https://www.ntsb.gov/investigations/Pages/HWY22MH003.aspx)) and the fast-aging bridge stock in countries such as Japan.
+The idea traces back to the Silver Bridge between Point Pleasant, West Virginia, and Ohio, which fell on December 15, 1967, killing 46 people, after a single eyebar in a suspension chain fractured from a defect only 2.5 mm (0.1 in) deep. The disaster led to the National Bridge Inspection Standards of April 27, 1971, which set inspections at least once every two years by trained inspectors ([FHWA](https://highways.dot.gov/highway-history/general-highway-history/happy-50th-anniversary-national-bridge-inspection-standards)). That calendar-based regime is still the backbone of bridge safety, but it leaves long gaps in which nobody watches a structure, and it is weakest for the small footbridges and local spans that get the least attention. BridgePulse starts from that gap: a low-cost record of how a small bridge behaves between inspections, fed to the owner's engineer and to CityTwin, so that a change can prompt a visit sooner than the calendar would.
 
 ## Problem
 
@@ -55,9 +55,9 @@ Many small bridges are inspected rarely, and deterioration is found late. Their 
 
 ## Concept
 
-A vibration and strain monitor for small bridges and footbridges that tracks natural frequency and strain over time to flag changes that need inspection. A sensor hub fixed between the flanges of a girder at midspan records 10 minutes of acceleration, strain and temperature every hour, extracts the natural frequencies and strain statistics on board, and sends about 36 bytes per hour through a FieldNode core over LoRaWAN to TwinKit or CityTwin. A temperature-compensated baseline, learned over weeks, flags lasting changes to the owner's engineer.
+A vibration and strain monitor for small bridges and footbridges that tracks natural frequency and strain over time to flag changes that need inspection. A sensor hub fixed between the flanges of a girder at midspan records 10 minutes of acceleration, strain and temperature every hour, extracts the natural frequencies and strain statistics on board, and sends about 36 bytes per hour (11 bytes where the radio data rate allows no more) through a FieldNode core over LoRaWAN to TwinKit or CityTwin. A temperature-compensated baseline, learned over weeks, flags lasting changes to the owner's engineer.
 
-The TRL 3 calculations ([BRP-CAL-001](docs/04-calcs/01-sizing.md)) give 16.9 mW average draw, 0.0153 Hz spectral resolution per record, 1.39 GB of raw records per month kept on site, and $244 of BridgePulse-specific parts ($370 with the FieldNode core, which is costed in its own repo). On the 7 m example footbridge the first mode is 23.9 Hz and the instrument can track it to about 0.05 % an hour, but the mass of people crossing lowers it by up to 6 %, so the 0.2 % repeatability target is not met there and the 1 % change detection cannot be verified on paper. See the [requirements](docs/03-requirements.md) for what is and is not met.
+The TRL 3 calculations ([BRP-CAL-001](docs/04-calcs/01-sizing.md)) give 16.9 mW average draw, 0.0153 Hz spectral resolution per record, 1.39 GB of raw records per month kept on site, and $248 of BridgePulse-specific parts ($374 with the FieldNode core, which is costed in its own repo). On the 7 m example footbridge the first mode is 23.9 Hz and the instrument can track it to about 0.05 % an hour, but the mass of people crossing lowers it by up to 6 %. The hub therefore gates out the time when someone is on the span; in simulation that brings the hourly scatter to 0.015 % or less, inside the 0.2 % target, which remains at risk until recorded data confirm it. The 1 % change detection cannot be verified on paper. See the [requirements](docs/03-requirements.md) for what is and is not met.
 
 Full design precis: [docs/02-concept.md](docs/02-concept.md)
 
@@ -67,7 +67,7 @@ Full design precis: [docs/02-concept.md](docs/02-concept.md)
 - Low-noise 3-axis MEMS accelerometer (ADXL355 class)
 - Signal board with 24-bit bridge ADC, RP2040 class microcontroller, RS-485 link and industrial microSD card
 - Two strain gauge half-bridges with temperature-compensating dummy gauges
-- Two temperature probes (steel and air)
+- Two TMP1826 class temperature probes in stainless sheaths (steel and air)
 - Shielded sensor cables with M12 connectors
 - FieldNode core (shared lab component): 6 W panel, LiFePO4 cell, MPPT charger and LoRaWAN radio
 
@@ -100,4 +100,4 @@ Controlled documents follow the portfolio [documentation standard](.kit/STANDARD
 - **Hardware** (CAD, drawings, BOM, electronics): [CERN-OHL-S v2](LICENSE)
 - **Software** (firmware, scripts, notebooks): [MIT](LICENSE-SOFTWARE)
 
-A project of the [Design Molecule](https://designmolecule.com) lab. Smart cities set.
+A project of the [Design Molecule](https://designmolecule.com) lab.

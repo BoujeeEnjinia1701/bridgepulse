@@ -3,7 +3,7 @@ doc_id: BRP-PRB-001
 title: BridgePulse problem statement
 project: BridgePulse
 doc_type: Problem statement
-version: "0.3"
+version: "0.4"
 status: Draft
 date: '2026-09-25'
 author: Amish Chadha
@@ -21,6 +21,10 @@ revisions:
   date: '2026-09-25'
   author: Amish Chadha
   change: Budget constraint per BRP-DDR-001 D1; example bridge frequency and cost from BRP-CAL-001; open question on people's mass added
+- version: "0.4"
+  date: '2026-09-25'
+  author: Amish Chadha
+  change: Recommendations accepted by Amish (DDR-002); budget decision status, cost and the people's-mass question updated
 ---
 
 # BridgePulse problem statement
@@ -50,7 +54,7 @@ Small bridges and footbridges are inspected by eye at long intervals, and deteri
 
 ## Constraints
 
-- Garage-buildable prototype. The project budget in `project.yaml` is $250 USD for the BridgePulse-specific parts, with the FieldNode core costed in its own repo (BRP-DDR-001, D1, adopted as recommended for TRL 3 under Amish's 2026-09-25 instruction, open for his review). The BridgePulse-specific parts cost $244 and the complete monitor $370 (BRP-CAL-001).
+- Garage-buildable prototype. The project budget in `project.yaml` is $250 USD for the BridgePulse-specific parts, with the FieldNode core costed in its own repo (BRP-DDR-001, D1; decided by Amish, 2026-09-25: go with recommendation). The BridgePulse-specific parts cost $248 and the complete monitor $374 (BRP-CAL-001 v0.2).
 - Built on the lab's FieldNode core for power, enclosure and radio; readings go to TwinKit and CityTwin.
 - No drilling or welding of the structure. Strain gauges need a small area of paint removed and recoated, which needs the owner's permission.
 - Installation from below or beside the deck without closing a road bridge to traffic where possible; work at height and over water follows the owner's rules.
@@ -76,7 +80,7 @@ Small bridges and footbridges are inspected by eye at long intervals, and deteri
 - [ ] Which owners would host a first installation, and on what kind of bridge?
 - [ ] Is ambient excitation (wind, footfall, traffic) enough to identify the first modes of a quiet footbridge with a MEMS accelerometer?
 - [ ] How large are temperature-driven frequency changes on small bridges, especially with asphalt surfacing or frozen bearings, compared with a 1 % damage signal?
-- [ ] On light footbridges, the mass of the people crossing changes the frequency by more than the 1 % change the monitor must detect (BRP-CAL-001). Can the method separate the two, or should the first installations favor heavier bridges?
+- [ ] On light footbridges, the mass of the people crossing changes the frequency by more than the 1 % change the monitor must detect (BRP-CAL-001). BRP-DDR-002 adopts load gating backed by a load regression; it meets the target in simulation (BRP-CAL-001 v0.2, B), but does it hold on recorded footfall?
 - [ ] Who receives an alert, and what is the agreed action when one is raised?
 - [ ] Is paint removal for strain gauges acceptable to owners, and is old paint likely to contain lead?
 

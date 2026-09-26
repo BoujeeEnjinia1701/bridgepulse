@@ -1,4 +1,4 @@
-"""BridgePulse general arrangement sheet BRP-DWG-001, Rev P1 (TRL 3).
+"""BridgePulse general arrangement sheet BRP-DWG-001, Rev P2 (TRL 3).
 
 Run from the repo root:  python cad/src/sheets.py
 Writes cad/drawings/BRP-DWG-001.svg, .pdf and .png from the parametric model in cad/src/model.py
@@ -99,10 +99,11 @@ def main():
     det = Compound(children=[hub_group(P), i_girder(P, -P["gy"], -150, 150)])
     dviews = safe_project_views(det, work / "detail")
     dbb = det.bounding_box()
-    s = Sheet(project="BridgePulse", title="General arrangement at midspan", dwg_no="BRP-DWG-001", rev="P1",
+    s = Sheet(project="BridgePulse", title="General arrangement at midspan", dwg_no="BRP-DWG-001", rev="P2",
               author="Amish Chadha", date=DATE, scale=0.05, theme="technical",
               material="6061 Al plate; bought-in parts per bom/bom.csv. PRELIMINARY, NOT FOR FABRICATION",
-              revisions=[("P1", "Preliminary GA for TRL 3 (from cad/src/model.py)", DATE, "AC")])
+              revisions=[("P1", "Preliminary GA for TRL 3 (from cad/src/model.py)", DATE, "AC"),
+                         ("P2", "Probe note per BRP-DDR-002", DATE, "AC")])
     k = s.scale
     # front and right views only (a top view shows little but the two girders); placed by hand so
     # that detail A fits beside them
@@ -174,9 +175,10 @@ def main():
         f"Two flange-tip clamps at x = +/-{P['clamp_x']:.0f}; nothing drilled or welded",
         f"Gauge covers under each flange at midspan; 10 max below soffit (R9: 15)",
         f"FieldNode on the post, base {P['fn_base_above_deck']:.0f} above deck; M12 5-pin, RS-485, 5 V",
+        "Probes (item 6) TMP1826 class in 7 dia sheaths; steel on web, air in shade",
         f"Example girders IPE 360 class at {2 * P['gy']:.0f} centers, span {P['bearing_span']:,.0f}",
         f"Third-angle; front view from -Y; {P['seg']:.0f} segment at midspan (x = 0)",
-    ], x=276, y=172, width=146)
+    ], x=276, y=166, width=146)
     out = s.save(ROOT / "cad" / "drawings" / "BRP-DWG-001")
     shutil.rmtree(work, ignore_errors=True)
     print(f"wrote {out} and .pdf, .png at scale 1:{1 / k:g}; detail A box {bw:.0f} x {bh:.0f} mm")
