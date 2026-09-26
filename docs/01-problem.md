@@ -3,7 +3,7 @@ doc_id: BRP-PRB-001
 title: BridgePulse problem statement
 project: BridgePulse
 doc_type: Problem statement
-version: "0.2"
+version: "0.3"
 status: Draft
 date: '2026-09-25'
 author: Amish Chadha
@@ -17,6 +17,10 @@ revisions:
   date: '2026-09-25'
   author: Amish Chadha
   change: Problem, users, context, constraints, prior work and open questions for TRL 2
+- version: "0.3"
+  date: '2026-09-25'
+  author: Amish Chadha
+  change: Budget constraint per BRP-DDR-001 D1; example bridge frequency and cost from BRP-CAL-001; open question on people's mass added
 ---
 
 # BridgePulse problem statement
@@ -40,13 +44,13 @@ Small bridges and footbridges are inspected by eye at long intervals, and deteri
 | Researchers and students | An open, documented platform for vibration-based structural health monitoring on real structures |
 | Residents and bridge users | Confidence that the bridge they cross is being watched, through CityTwin, without the monitor collecting anything about them |
 
-**Target structures.** Footbridges and short-span road bridges with spans of roughly 5 to 30 m, in steel, concrete or timber, where the first vertical modes are expected to lie between about 1 and 50 Hz (estimate, to confirm per bridge). The worked example in the media is a 7 m steel footbridge on two I-girders; its first vertical mode is about 24 Hz by a simple beam estimate (see BRP-PRC-001).
+**Target structures.** Footbridges and short-span road bridges with spans of roughly 5 to 30 m, in steel, concrete or timber, where the first vertical modes are expected to lie between about 1 and 50 Hz (estimate, to confirm per bridge). The worked example in the media is a 7 m steel footbridge on two I-girders; its first vertical mode is 23.9 Hz by a simple beam calculation, and one walker at midspan lowers it by about 6 % (BRP-CAL-001).
 
 **Operating environment.** Outdoors, under or beside a deck over water or a road: rain, splash, condensation, freeze and thaw, UV on the solar panel, birds and vandalism. No mains power on site. Radio coverage by LoRaWAN, either a public network or the lab's TwinKit gateway.
 
 ## Constraints
 
-- Garage-buildable prototype. The project budget in `project.yaml` is about $250 USD; the full system with a FieldNode core is estimated at about $342 (see `bom/bom.csv` and `docs/REVIEW.md`).
+- Garage-buildable prototype. The project budget in `project.yaml` is $250 USD for the BridgePulse-specific parts, with the FieldNode core costed in its own repo (BRP-DDR-001, D1, adopted as recommended for TRL 3 under Amish's 2026-09-25 instruction, open for his review). The BridgePulse-specific parts cost $244 and the complete monitor $370 (BRP-CAL-001).
 - Built on the lab's FieldNode core for power, enclosure and radio; readings go to TwinKit and CityTwin.
 - No drilling or welding of the structure. Strain gauges need a small area of paint removed and recoated, which needs the owner's permission.
 - Installation from below or beside the deck without closing a road bridge to traffic where possible; work at height and over water follows the owner's rules.
@@ -72,6 +76,7 @@ Small bridges and footbridges are inspected by eye at long intervals, and deteri
 - [ ] Which owners would host a first installation, and on what kind of bridge?
 - [ ] Is ambient excitation (wind, footfall, traffic) enough to identify the first modes of a quiet footbridge with a MEMS accelerometer?
 - [ ] How large are temperature-driven frequency changes on small bridges, especially with asphalt surfacing or frozen bearings, compared with a 1 % damage signal?
+- [ ] On light footbridges, the mass of the people crossing changes the frequency by more than the 1 % change the monitor must detect (BRP-CAL-001). Can the method separate the two, or should the first installations favor heavier bridges?
 - [ ] Who receives an alert, and what is the agreed action when one is raised?
 - [ ] Is paint removal for strain gauges acceptable to owners, and is old paint likely to contain lead?
 

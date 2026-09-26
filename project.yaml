@@ -2,12 +2,21 @@
 name: BridgePulse
 slug: bridgepulse
 area: Smart Cities
-trl: 2                   # Technology Readiness Level, see .kit/STANDARDS.md section 9
+trl: 3                   # Technology Readiness Level, see .kit/STANDARDS.md section 9
 trl_target: 3
 trl_evidence:
   - docs/01-problem.md
   - docs/02-concept.md
   - docs/03-requirements.md
+  - docs/decisions/0001-trl2-review-decisions.md
+  - docs/04-calcs/01-sizing.md
+  - docs/04-calcs/sizing.py
+  - cad/src/model.py
+  - cad/step/bridgepulse-assembly.step
+  - cad/step/sensor-hub.step
+  - cad/drawings/BRP-DWG-001.svg
+  - cad/drawings/BRP-DWG-001.pdf
+  - bom/bom.csv
 shortlisted: false
 pitch: >-
   A vibration and strain monitor for small bridges and footbridges that tracks natural frequency and strain over time to flag changes that need inspection.

@@ -1,14 +1,14 @@
 # BridgePulse
 
-![TRL 2](https://img.shields.io/badge/TRL-2%20of%209-0F766E) ![Hardware: CERN-OHL-S-2.0](https://img.shields.io/badge/hardware-CERN--OHL--S--2.0-111827) ![Software: MIT](https://img.shields.io/badge/software-MIT-111827)
+![TRL 3](https://img.shields.io/badge/TRL-3%20of%209-0F766E) ![Hardware: CERN-OHL-S-2.0](https://img.shields.io/badge/hardware-CERN--OHL--S--2.0-111827) ![Software: MIT](https://img.shields.io/badge/software-MIT-111827)
 
-**Area:** Smart Cities · **TRL:** 2 of 9 (concept formulated) · **Prototype budget:** about $250 USD · **Difficulty:** 3 of 5
+**Area:** Smart Cities · **TRL:** 3 of 9 (proof of concept on paper) · **Prototype budget:** $250 USD for the BridgePulse-specific parts · **Difficulty:** 3 of 5
 
 A vibration and strain monitor for small bridges and footbridges that tracks natural frequency and strain over time to flag changes that need inspection.
 
 ![BridgePulse concept](media/hero.png)
 
-[Interactive 3D model](media/viewer.html) · [Concept blueprint (PDF)](media/concept-blueprint.pdf) · [Review note](docs/REVIEW.md)
+[Interactive 3D model](media/viewer.html) · [Concept blueprint (PDF)](media/concept-blueprint.pdf) · [General arrangement BRP-DWG-001 (PDF)](cad/drawings/BRP-DWG-001.pdf) · [Calculations BRP-CAL-001](docs/04-calcs/01-sizing.md) · [Review note](docs/REVIEW.md)
 
 ## Concept rationale
 
@@ -55,17 +55,17 @@ Many small bridges are inspected rarely, and deterioration is found late. Their 
 
 ## Concept
 
-A vibration and strain monitor for small bridges and footbridges that tracks natural frequency and strain over time to flag changes that need inspection. A sensor hub clamped to a girder at midspan records 10 minutes of acceleration, strain and temperature every hour, extracts the natural frequencies and strain statistics on board, and sends about 36 bytes per hour through a FieldNode core over LoRaWAN to TwinKit or CityTwin. A temperature-compensated baseline, learned over weeks, flags lasting changes to the owner's engineer.
+A vibration and strain monitor for small bridges and footbridges that tracks natural frequency and strain over time to flag changes that need inspection. A sensor hub fixed between the flanges of a girder at midspan records 10 minutes of acceleration, strain and temperature every hour, extracts the natural frequencies and strain statistics on board, and sends about 36 bytes per hour through a FieldNode core over LoRaWAN to TwinKit or CityTwin. A temperature-compensated baseline, learned over weeks, flags lasting changes to the owner's engineer.
 
-First-order estimates (to be checked at TRL 3): about 15 mW average draw, about 0.015 Hz spectral resolution per record, about 1.4 GB of raw records per month kept on site, and about $342 in parts including the FieldNode core ($216 BridgePulse-specific), which is over the $250 budget. The 1 % frequency shift detection target is not yet demonstrated. See the [requirements](docs/03-requirements.md) for what is and is not met.
+The TRL 3 calculations ([BRP-CAL-001](docs/04-calcs/01-sizing.md)) give 16.9 mW average draw, 0.0153 Hz spectral resolution per record, 1.39 GB of raw records per month kept on site, and $244 of BridgePulse-specific parts ($370 with the FieldNode core, which is costed in its own repo). On the 7 m example footbridge the first mode is 23.9 Hz and the instrument can track it to about 0.05 % an hour, but the mass of people crossing lowers it by up to 6 %, so the 0.2 % repeatability target is not met there and the 1 % change detection cannot be verified on paper. See the [requirements](docs/03-requirements.md) for what is and is not met.
 
 Full design precis: [docs/02-concept.md](docs/02-concept.md)
 
 ## Key components
 
-- Sensor hub: IP67 die-cast aluminium enclosure clamped to the girder, no drilling
+- Sensor hub: IP67 die-cast aluminium enclosure on an aluminium plate jacked between the girder flanges, no drilling
 - Low-noise 3-axis MEMS accelerometer (ADXL355 class)
-- Signal board with 24-bit bridge ADC, low-power microcontroller and microSD card
+- Signal board with 24-bit bridge ADC, RP2040 class microcontroller, RS-485 link and industrial microSD card
 - Two strain gauge half-bridges with temperature-compensating dummy gauges
 - Two temperature probes (steel and air)
 - Shielded sensor cables with M12 connectors

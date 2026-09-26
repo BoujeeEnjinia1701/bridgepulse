@@ -3,7 +3,7 @@ doc_id: BRP-PRC-001
 title: BridgePulse design precis
 project: BridgePulse
 doc_type: Design precis
-version: "0.2"
+version: "0.3"
 status: Draft
 date: '2026-09-25'
 author: Amish Chadha
@@ -17,47 +17,52 @@ revisions:
   date: '2026-09-25'
   author: Amish Chadha
   change: Concept for TRL 2; architecture, first-order numbers, safety and open questions
+- version: "0.3"
+  date: '2026-09-25'
+  author: Amish Chadha
+  change: TRL 3 update; design choices adopted for TRL 3 per BRP-DDR-001; numbers from BRP-CAL-001; jacked mounting plate, switched-rail power, curve-fit frequency estimate, mass-loading finding
 ---
 
 # BridgePulse design precis
 
 ## Summary
 
-BridgePulse is a clamp-on monitor for small bridges and footbridges. A sensor hub bolted to a girder at midspan records ambient vibration, strain and temperature for 10 minutes every hour, works out the bridge's natural frequencies and strain statistics on board, and sends a short summary through a FieldNode core over LoRaWAN to TwinKit or CityTwin. Over weeks the system learns how the frequencies move with temperature; a sustained shift outside that band is flagged to the bridge owner's engineer as a reason to inspect sooner. It is a research prototype that supports inspection, never a safety rating.
+BridgePulse is a clamp-on monitor for small bridges and footbridges. A sensor hub fixed to a girder at midspan records ambient vibration, strain and temperature for 10 minutes every hour, works out the bridge's natural frequencies and strain statistics on board, and sends a short summary through a FieldNode core over LoRaWAN to TwinKit or CityTwin. Over weeks the system learns how the frequencies move with temperature; a sustained shift outside that band is flagged to the bridge owner's engineer as a reason to inspect sooner. It is a research prototype that supports inspection, never a safety rating.
 
-First-order estimates (to be checked at TRL 3): about 15 mW average draw, about 0.015 Hz spectral resolution per hourly record, about 36 bytes per hourly uplink, about 1.4 GB per month of raw records kept on a microSD card, and about $342 in parts including the FieldNode core ($216 for the BridgePulse-specific parts).
+The TRL 3 calculations (BRP-CAL-001) give 16.9 mW average draw at the FieldNode port, a 36-byte hourly uplink, 1.39 GB per month of raw records kept on a microSD card (22 months on 32 GB), and $244 of BridgePulse-specific parts ($370 with the FieldNode core). On the 7 m example footbridge the first mode is 23.9 Hz and the instrument can track it to 0.05 % an hour, but walkers' own mass lowers it by up to 6 % while they cross; this is the main open problem (R2 not met, R3 not verifiable at TRL 3).
 
 ![Figure 1. BridgePulse on an example 7 m steel footbridge](../media/hero.png)
 
-*Figure 1. Concept render. The monitor clusters at midspan: sensor hub on the south girder, FieldNode core on the handrail post. Grey parts are the existing bridge and a 1.75 m person for scale.*
+*Figure 1. Concept render. The monitor clusters at midspan: sensor hub between the flanges of the south girder, FieldNode core on the handrail post. Grey parts are the existing bridge and a 1.75 m person for scale.*
 
 ## How it works
 
-1. **Sense.** A low-noise 3-axis MEMS accelerometer, rigidly fixed inside the hub against the girder web, picks up the bridge's response to wind, footfall and traffic. Two strain gauge half-bridges under the bottom flanges of both girders at midspan measure bending strain. Two temperature probes measure the steel and the shaded air under the deck.
-2. **Record.** Once an hour the hub wakes, powers the gauges and samples for 600 s: acceleration at 250 Hz on three axes, strain at 20 Hz on two channels, temperature once a minute. The raw record goes to a microSD card so an engineer can download it later.
-3. **Reduce.** The hub computes averaged spectra (Welch method, about 65 s segments with 50 % overlap) and picks the peaks of the first modes below 60 Hz, their amplitudes, the RMS acceleration, and the strain minimum, maximum and mean on each channel.
-4. **Send.** The summary, about 36 bytes, passes over a sealed M12 cable to the FieldNode core, which sends it as one LoRaWAN uplink per hour.
-5. **Learn and flag.** TwinKit stores the series and fits frequency against steel temperature over a baseline period, following the approach of the Z24 bridge study ([Peeters and De Roeck, 2001](https://doi.org/10.1002/1096-9845%28200102%2930:2%3C149::AID-EQE1%3E3.0.CO;2-Z)). A frequency that stays outside the confidence band for a set period, or a step in the strain baseline, raises a flag to the owner's engineer. TwinKit can also show the measured frequency next to the value calculated from the bridge model.
-6. **Act.** The engineer decides whether to inspect. The public CityTwin view shows only that the bridge is monitored and when data last arrived (proposed).
+1. **Sense.** A low-noise 3-axis MEMS accelerometer, fixed inside the hub to the enclosure base, picks up the bridge's response to wind, footfall and traffic. The hub sits on an aluminium plate that stands on the bottom flange against the web and is wedged against the top flange by a jack screw, so that its own mounting resonance (126 to 253 Hz) is well above the measured band. Two strain gauge half-bridges under the bottom flanges of both girders at midspan measure bending strain. Two temperature probes measure the steel and the shaded air under the deck.
+2. **Record.** Once an hour the FieldNode core switches on the 5 V rail of its sensor port. The hub boots, warms the gauges for 20 s and samples for 600 s: acceleration at 250 Hz on three axes, strain at 20 Hz on two channels, temperature once a minute. The raw record goes to an industrial microSD card so an engineer can download it later.
+3. **Reduce.** The hub reads the record back from the card one axis at a time, computes averaged spectra (Welch method, 65.5 s Hann segments with 50 % overlap), and estimates the frequencies of the first modes below 60 Hz by fitting a single-degree-of-freedom spectrum around each peak. It also computes peak amplitudes, RMS acceleration, and the strain minimum, maximum and mean on each channel.
+4. **Send.** The 36-byte summary passes over RS-485 on the M12 cable to the FieldNode core, which sends it as one LoRaWAN uplink; the rail is then switched off until the next hour. At the slowest US915 and AS923 data rates a reduced 11-byte summary is proposed (BRP-CAL-001, G).
+5. **Learn and flag.** TwinKit stores the series and fits frequency against steel temperature over a baseline period, following the approach of the Z24 bridge study ([Peeters and De Roeck, 2001](https://doi.org/10.1002/1096-9845%28200102%2930:2%3C149::AID-EQE1%3E3.0.CO;2-Z)). A frequency that stays outside the confidence band for a set period, or a step in the strain baseline, raises a flag to the owner's engineer. On light footbridges the model must also account for the load on the deck (see Key numbers). TwinKit can show the measured frequency next to the value calculated from the bridge model.
+6. **Act.** The engineer decides whether to inspect. The public CityTwin view shows only that the bridge is monitored and when data last arrived.
 
 ![Figure 2. Hourly data flow](../media/flow.png)
 
-*Figure 2. Hourly data flow. Values are estimates.*
+*Figure 2. Hourly data flow. Values are estimates from BRP-CAL-001.*
 
 ## Main components
 
-Numbers match the exploded view (Figure 3) and `bom/bom.csv`.
+Numbers match the exploded view (Figure 3) and `bom/bom.csv`. The general arrangement is drawing BRP-DWG-001.
 
 | No. | Component | Role |
 | --- | --- | --- |
-| 1 | Sensor hub enclosure, die-cast aluminium, IP67, about 170 × 110 × 64 mm | Stiff, sealed housing that couples the accelerometer to the girder |
+| 1 | Sensor hub enclosure, die-cast aluminium, IP67, 170 × 64 × 110 mm | Stiff, sealed housing that couples the accelerometer to the plate; two M12 glands and an M12 panel connector underneath |
 | 2 | Accelerometer board, ADXL355 class | 3-axis, 22.5 µg/√Hz noise density, 200 µA in measurement mode ([Analog Devices](https://www.analog.com/en/products/adxl355.html)) |
-| 3 | Signal board: 24-bit bridge ADC (ADS1220 class), low-power microcontroller (RP2040 class, proposed), microSD, gauge excitation switch | Sampling, spectra, features, raw storage |
-| 4 | Mounting plate and two beam clamps, stainless steel | Holds the hub against the web by clamping the bottom flange; no drilling |
+| 3 | Signal board: 24-bit bridge ADC (ADS1220 class), RP2040 class microcontroller, 5 V to 3.3 V buck converter, RS-485 transceiver, microSD socket, gauge excitation switch | Sampling, spectra, features, raw storage, link to FieldNode |
+| 4 | Mounting plate, 200 × 313 × 8 mm 6061 aluminium, with an M12 jack screw to the top flange and two flange-tip clamps | Holds the hub between the flanges, inside the girder outline; no drilling |
 | 5 | Strain gauge half-bridges (2): each an active 350 Ω foil gauge on the flange plus a dummy gauge on an unstrained coupon of the same steel, with protective coating and cover | Bending strain at midspan of each girder, temperature-compensated |
-| 6 | Temperature probes (2), sealed digital type | Steel and shaded air temperature for frequency compensation |
-| 7 | Sensor cables, shielded, with M12 connectors and glands | Gauges to hub, hub to FieldNode |
+| 6 | Temperature probes (2), sealed DS18B20 class | Steel and shaded air temperature for frequency compensation |
+| 7 | Sensor cables and M12 connectors | Gauges to hub, hub to FieldNode |
 | 8 | FieldNode core: IP65 enclosure, 6 W panel as sun hood, LiFePO4 cell, MPPT charger, LoRaWAN radio, pole clamps | Power, radio and mounting shared across the lab's outdoor projects |
+| 9 | microSD card, industrial grade, 32 GB | Raw records on site (in item 3; not shown separately) |
 
 ![Figure 3. Exploded view](../media/exploded.png)
 
@@ -65,68 +70,55 @@ Numbers match the exploded view (Figure 3) and `bom/bom.csv`.
 
 ![Figure 4. Sensor hub cutaway](../media/cutaway.png)
 
-*Figure 4. Cutaway of the sensor hub. The accelerometer board is fixed to the base of the enclosure on the web side so it moves with the girder.*
+*Figure 4. Cutaway of the sensor hub on its plate, between the flanges of the south girder. The accelerometer board is fixed to the base of the enclosure on the plate side so it moves with the girder.*
 
-## First-order numbers
+## Key numbers (BRP-CAL-001)
 
-All values are estimates at TRL 2 and will be checked by calculation at TRL 3.
+All values come from BRP-CAL-001 v0.1, which states its assumptions; they are calculations, not measurements.
 
-### Example bridge: natural frequency
+### Example bridge
 
-For the 7 m example footbridge, treat the deck as a simply supported beam of two IPE 360 class girders:
+- 6.4 m between bearings; two IPE 360 class girders; EI = 6.52 × 10⁷ N·m²; 167 kg/m. First vertical mode **23.9 Hz**, second 96 Hz (outside the band); modal mass 535 kg.
+- A lasting 1 % drop in frequency is a 2 % loss of bending stiffness. The steel modulus alone moves the frequency by about 1 % between −20 and +50 °C, so temperature compensation is needed.
+- **People change the frequency of a light footbridge.** One 75 kg walker at midspan lowers f₁ by 6.3 %; a crowd of one person per square meter lowers it by 22.7 %. On a road bridge with 20 t of modal mass one walker moves it by 0.19 %.
 
-- Span between bearings L ≈ 6.4 m; E = 210 GPa; I ≈ 16,270 cm⁴ per girder, so EI ≈ 6.8 × 10⁷ N m² for two girders.
-- Mass per meter m ≈ 172 kg/m (girders about 114 kg/m, timber deck about 38 kg/m, rails about 20 kg/m).
-- f₁ = (π / 2L²) √(EI / m) ≈ 0.0384 × √(3.97 × 10⁵) ≈ **24 Hz**.
+### Measurement
 
-The second vertical mode of a simple beam is four times the first, about 97 Hz, outside the 60 Hz band. On this short span only the first vertical mode and possibly a torsional mode are tracked; longer spans bring more modes into the band. Assumptions: pinned supports, no composite action from the timber deck, no pedestrians on the deck.
+- Bin width 0.0153 Hz; 17 averaged segments per record; sensor noise 2.8 µg in one bin. The mode's 0.48 Hz half-power bandwidth, not the bin width, limits precision.
+- Simulated scatter of the hourly estimate from sensor noise: 0.053 % at 100 µg RMS of modal response with a curve fit, against 0.265 % with simple peak picking; a clear peak needs about 30 µg RMS. One walker gives about 29 mg RMS near midspan, so footfall is ample excitation.
+- Because the walkers who excite the bridge also load it, the hourly estimate scatters by 0.45 % at 5 crossings an hour and by 0.23 % at 20. R2's 0.2 % is not met on the example bridge.
+- Detecting a 1 % shift within 14 days with one false flag per year needs a daily residual of 0.75 % or less after temperature and load compensation.
+- Strain: 1.65 µV per µε; 0.09 µε RMS resolution at the assumed ADC noise; a 5 kN/m² crowd gives 106 µε and one walker 3.2 µε, so strain is a usable load indicator.
 
-### Measurement resolution
+### Power, data and mounting
 
-- Accelerometer output rate 250 Hz with the internal low-pass filter at about 62.5 Hz; usable band about 0.5 to 60 Hz.
-- Welch segments of 16,384 samples (65.5 s) give a bin width of about **0.015 Hz**; a 600 s record gives about 17 averaged segments with 50 % overlap.
-- Accelerometer noise in one bin: 22.5 µg/√Hz × √0.015 Hz ≈ **2.8 µg**. Across the whole band it is about 180 µg RMS. A clear peak therefore needs a modal response of a few tens of µg or more in that bin; whether quiet footbridges reach this is open question 1.
-- With peak interpolation, the random error of one hourly frequency estimate should be a small fraction of a bin (about 0.01 % at 24 Hz, about 0.1 % at 2 Hz). The real limit is environmental: temperature, bearing friction and surfacing stiffness change the frequency far more than the measurement noise does. The 1 % detection target (REQ R3) therefore depends on the temperature model and is **not yet demonstrated**.
-
-### Strain
-
-- Half-bridge with one active gauge and a dummy, gauge factor about 2.0, 3.3 V excitation: output about 1.65 µV per µε.
-- Target resolution 2 µε (about 0.4 MPa in steel), to be checked against the ADC's noise at 20 samples per second at TRL 3.
-- Example bridge: a crowd load of 5 kN/m² over the 1.5 m deck gives a midspan moment of about 38 kN m, about 21 MPa or **about 100 µε** in each girder. One 80 kg pedestrian at midspan gives only about 3 µε, close to the resolution. Strain on stiff short bridges is small; its main value is spotting a step in the baseline or a change in how the load splits between the two girders.
-- Only changes from the day of installation can be measured. Dead-load strain already in the steel is not visible.
-
-### Power and data
-
-| Load during the 600 s window | Estimate |
+| Quantity | Value |
 | --- | --- |
-| Microcontroller at reduced clock | about 33 mW |
-| Accelerometer | about 0.7 mW |
-| 24-bit ADC | about 1.4 mW |
-| Gauge excitation, two 700 Ω half-bridges at 3.3 V | about 31 mW |
-| microSD writes (average) | about 10 mW |
-| Regulator losses (about 10 %) | about 8 mW |
-| **Total while recording** | **about 84 mW** |
+| Power while recording, at the FieldNode port | 92.9 mW |
+| Average, with the rail off between records | **16.9 mW** (0.41 Wh per day; 17 % of FieldNode's 100 mW allowance) |
+| Raw data | 1.90 MB per hour; 1.39 GB per month; 22 months on 32 GB |
+| Uplink | 36 bytes hourly; 329 ms at SF9; fits EU868 at every rate, US915 and AS923 from SF9 |
+| Mass on the girder | 3.34 kg (hub 0.87 kg, plate 1.35 kg, jack and clamps 1.12 kg); FieldNode core 2.41 kg |
+| Mounting resonance of the hub | 126 to 253 Hz (TRL 2 arrangement about 77 Hz) |
+| Depth below the soffit | 10 mm at most (limit 15 mm) |
 
-With one 600 s window per hour (duty 1/6) and about 0.3 mW asleep, the average is **about 15 mW**, or about 0.36 Wh per day. FieldNode's README gives about 115 mW average for sensors, so the hub uses about an eighth of that allowance.
+### Cost
 
-Raw data: 600 s × 250 Hz × 3 axes × 4 bytes ≈ 1.8 MB, plus about 0.1 MB of strain and temperature, so about 1.9 MB per hour, 46 MB per day and **1.4 GB per month**. A 32 GB card holds about 23 months.
+$244.00 of BridgePulse-specific parts against the $250 budget, which under BRP-DDR-001 D1 covers the BridgePulse-specific parts; with the FieldNode core ($126.00, costed in its own repo) the complete monitor is $370.00. The bridge, installation labor, access equipment, traffic management and paint testing are not included.
 
-Uplink payload per hour: three mode frequencies and amplitudes (12 bytes), RMS acceleration on three axes (6 bytes), strain minimum, maximum and mean on two channels (12 bytes), two temperatures (4 bytes) and status (2 bytes): **about 36 bytes**.
+## Key design choices
 
-### Cost and mass
+Each is adopted as recommended for TRL 3 under Amish's 2026-09-25 instruction, open for his review (BRP-DDR-001).
 
-About $342 in parts including the FieldNode core (about $126 from the FieldNode README), of which about $216 is BridgePulse-specific. This is **over the $250 project budget**; see `docs/REVIEW.md` for the proposed options. Mass on the bridge is about 0.6 kg for the hub and clamps plus about 1.7 kg for the FieldNode core.
-
-## Key design choices (all proposed, awaiting Amish)
-
-1. **Ambient vibration only.** No shaker or impact hammer; wind, footfall and traffic excite the bridge. Simple and passive, but weak on very quiet bridges.
-2. **Separate hub on the girder, FieldNode on a post.** The accelerometer must be on the structure, while the panel needs sun and the radio needs a clear view; putting both in one box would compromise one of them.
-3. **Hourly 10 minute windows rather than continuous recording.** Keeps power at about 15 mW and still gives 24 frequency estimates a day. Continuous recording would catch every heavy vehicle but would need about 84 mW.
-4. **Temperature-compensated trend, not fixed limits.** A frequency band learned from the bridge's own baseline, with at least four weeks of data before any flag and a full year to cover seasons.
-5. **Foil gauge half-bridges with a dummy on a coupon.** Cheaper and easier to fit than weldable or vibrating-wire gauges, at the cost of long-term drift, which must be checked.
-6. **One accelerometer at midspan.** Enough for the first vertical and torsional modes. A second unit at quarter span would add mode shape information later.
-7. **Built on FieldNode, TwinKit and CityTwin.** The hub connects to one FieldNode M12 sensor port; the pinout and protocol need agreement with the FieldNode project.
+1. **Ambient vibration only.** No shaker or impact hammer; wind, footfall and traffic excite the bridge. Footfall is ample on a used footbridge; very quiet bridges remain a risk.
+2. **Separate hub on the girder, FieldNode on a post.** The accelerometer must be on the structure, while the panel needs sun and the radio a clear view.
+3. **Hourly 10 minute windows rather than continuous recording.** 16.9 mW against about 93 mW, with 24 frequency estimates a day.
+4. **Temperature-compensated trend, not fixed limits.** A frequency band learned from the bridge's own baseline, with at least four weeks of data before any flag and a full year to cover seasons. BRP-CAL-001 shows it must model load on the deck as well as temperature.
+5. **Foil gauge half-bridges with a dummy on a coupon.** Cheaper and easier to fit than weldable or vibrating-wire gauges, at the cost of long-term drift, to be checked early.
+6. **One accelerometer at midspan.** Enough for the first vertical and torsional modes.
+7. **Built on FieldNode, TwinKit and CityTwin.** The hub connects to one FieldNode M12 5-pin port, using its switched rail at 5 V and RS-485 on two signal pins. This follows FieldNode's candidate pinout; the pinout itself is still open (BRP-DDR-001, O1).
 8. **Engineer-only alerts.** Flags go to the owner's engineer; the public CityTwin view shows only monitoring status.
+9. **An RP2040 class microcontroller in the hub,** which post-processes each record from the card because the three axes do not fit in its RAM at once.
 
 ## Safety
 
@@ -138,16 +130,16 @@ About $342 in parts including the FieldNode core (about $126 from the FieldNode 
 
 > **Safety:** The FieldNode core contains a lithium iron phosphate cell. Use the fused, protected pack and cold-charge lockout specified by FieldNode and never mount a damaged pack.
 
-> **Safety:** Nothing may be drilled, welded or cut into the structure. Clamps must be checked so they cannot loosen and fall onto people, vehicles or boats below; use a secondary lanyard on the hub.
+> **Safety:** Nothing may be drilled, welded or cut into the structure. The jack screw preload and the clamps must be checked so they cannot loosen and fall onto people, vehicles or boats below; use a secondary lanyard on the hub. Isolate the aluminium plate from the steel so galvanic corrosion cannot loosen it over time.
 
 > **Safety:** Fit tamper-resistant fasteners on the post-mounted FieldNode so the public cannot pull it off or hang from it, and keep cables out of reach from the deck.
 
 ## Open questions
 
-- [ ] 1. Is ambient excitation enough to identify the first modes of a quiet footbridge above the accelerometer's noise, or is a second, lower-noise sensor option needed?
-- [ ] 2. How much do frequencies move with temperature on small steel, concrete and timber bridges, and can a model trained on four weeks of data hold across seasons?
+- [ ] 1. How can the frequency estimate be separated from the mass of people on a light footbridge: by gating out loaded segments, by regression on a load indicator, or only on heavier bridges? (BRP-CAL-001, B)
+- [ ] 2. How much do frequencies move with temperature on small steel, concrete and timber bridges, and can a model trained on four weeks of data hold across seasons to a daily residual of 0.75 %?
 - [ ] 3. What drift do foil strain gauges show outdoors over a year with the proposed coating?
-- [ ] 4. Which FieldNode port pinout and serial protocol will the hub use?
+- [ ] 4. Which FieldNode port pinout and protocol will be agreed (BRP-DDR-001, O1)?
 - [ ] 5. What is the alert rule (size of shift, duration) and who receives it?
-- [ ] 6. Can temperature probes and the hub's temperature drift be checked in the CalRig chamber before deployment?
-- [ ] 7. Who owns the data, and what is published openly through CityTwin?
+- [ ] 6. How are the temperature probes checked below −10 °C, where the CalRig chamber does not reach?
+- [ ] 7. Who owns the data, and what is published openly through CityTwin (BRP-DDR-001, O3)?
