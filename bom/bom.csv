@@ -1,6 +1,9 @@
 item,qty,spec,supplier,unit_cost_usd,make_buy,notes
-Accelerometer,,,,,,
-Strain gauges and bridge amplifier,,,,,,
-Temperature sensor,,,,,,
-FieldNode core,,,,,,
-Mounting brackets,,,,,,
+1 Sensor hub enclosure,1,"Die-cast aluminium box, IP67, about 170 x 110 x 64 mm, with gasket and two M12 panel glands",Electronics distributor,18.00,buy,Indicative price; stiff base needed to couple the accelerometer to the girder
+2 Accelerometer board,1,"ADXL355 class 3-axis MEMS accelerometer, 22.5 µg/√Hz noise density, SPI, on a small breakout board",Analog Devices evaluation board or electronics distributor,45.00,buy,Indicative price for a breakout; the bare part is about $46 per unit in 1000s per the maker
+3 Signal board,1,"24-bit bridge ADC (ADS1220 class), RP2040 class microcontroller (proposed), microSD socket, gauge excitation switch, 3.3 V regulator; module stack at TRL 2",Electronics distributor,30.00,buy,Indicative price; a custom board is later work and not started
+4 Mounting plate and beam clamps,1,"Stainless steel plate about 260 x 260 x 6 mm with two flange beam clamps and a secondary lanyard; no drilling of the structure",Fastener supplier or local fabricator,25.00,buy,Indicative price
+5 Strain gauge half-bridges,2,"Per girder: one active 350 ohm foil gauge for steel, one dummy gauge on an unstrained coupon, adhesive, protective coating and cover patch",Strain gauge supplier,30.00,buy,Indicative price per half-bridge; paint removal needs owner permission and a lead test
+6 Temperature probes,2,"Sealed digital temperature probe, stainless sheath; one on the steel web, one in shaded air",Electronics distributor,4.00,buy,Indicative price; check against a reference in CalRig
+7 Sensor cables,1,"Shielded 4-core outdoor cable, about 10 m in total, four M12 connectors, cable ties and UV-stable clips",Electronics distributor,30.00,buy,Indicative price
+8 FieldNode core,1,"Shared lab component: IP65 enclosure, 6 W panel, LiFePO4 cell, MPPT charger, LoRaWAN radio, pole clamps",Built from the FieldNode BOM,126.00,make,Parts cost from the FieldNode README; shared component that can be reused
