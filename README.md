@@ -6,9 +6,9 @@
 
 A vibration and strain monitor for small bridges and footbridges that tracks natural frequency and strain over time to flag changes that need inspection.
 
-![BridgePulse concept](media/hero.png)
+![BridgePulse: clamp-on vibration and strain monitor for small bridges, product render](media/render-hero.png)
 
-[Interactive 3D model](media/viewer.html) · [Concept blueprint (PDF)](media/concept-blueprint.pdf) · [General arrangement BRP-DWG-001 (PDF)](cad/drawings/BRP-DWG-001.pdf) · [Calculations BRP-CAL-001](docs/04-calcs/01-sizing.md) · [Review note](docs/REVIEW.md)
+[Exploded render](media/render-exploded.png) · [Detail render](media/render-detail.png) · [Interactive 3D model](media/viewer.html) · [Concept blueprint (PDF)](media/concept-blueprint.pdf) · [General arrangement BRP-DWG-001 (PDF)](cad/drawings/BRP-DWG-001.pdf) · [Calculations BRP-CAL-001](docs/04-calcs/01-sizing.md) · [Review note](docs/REVIEW.md)
 
 ## Concept rationale
 

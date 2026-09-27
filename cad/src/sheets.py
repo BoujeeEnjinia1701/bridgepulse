@@ -1,4 +1,4 @@
-"""BridgePulse general arrangement sheet BRP-DWG-001, Rev P2 (TRL 3).
+"""BridgePulse general arrangement sheet BRP-DWG-001, Rev P3 (TRL 3).
 
 Run from the repo root:  python cad/src/sheets.py
 Writes cad/drawings/BRP-DWG-001.svg, .pdf and .png from the parametric model in cad/src/model.py
@@ -16,6 +16,7 @@ from drawing import Sheet, _viewbox, _t, M, TB_Y, INK, MUTED  # noqa: E402
 from model import PARAMS as P, derived, installed, hub_group, i_girder  # noqa: E402
 
 DATE = "2026-09-25"
+DATE_P3 = "2026-09-27"
 
 
 def safe_project_views(part, workdir, line_weight=0.35):
@@ -99,11 +100,12 @@ def main():
     det = Compound(children=[hub_group(P), i_girder(P, -P["gy"], -150, 150)])
     dviews = safe_project_views(det, work / "detail")
     dbb = det.bounding_box()
-    s = Sheet(project="BridgePulse", title="General arrangement at midspan", dwg_no="BRP-DWG-001", rev="P2",
-              author="Amish Chadha", date=DATE, scale=0.05, theme="technical",
+    s = Sheet(project="BridgePulse", title="General arrangement at midspan", dwg_no="BRP-DWG-001", rev="P3",
+              author="Amish Chadha", date=DATE_P3, scale=0.05, theme="technical",
               material="6061 Al plate; bought-in parts per bom/bom.csv. PRELIMINARY, NOT FOR FABRICATION",
               revisions=[("P1", "Preliminary GA for TRL 3 (from cad/src/model.py)", DATE, "AC"),
-                         ("P2", "Probe note per BRP-DDR-002", DATE, "AC")])
+                         ("P2", "Probe note per BRP-DDR-002", DATE, "AC"),
+                         ("P3", "Far gauge cable clear of bottom flanges per BRP-DDR-003", DATE_P3, "AC")])
     k = s.scale
     # front and right views only (a top view shows little but the two girders); placed by hand so
     # that detail A fits beside them

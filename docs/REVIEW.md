@@ -206,3 +206,61 @@ No other repo was edited.
 ### TRL 4
 
 TRL 4 remains on hold by Amish's instruction. The recorded-data check of load gating (D12), the ice-point and CalRig checks of the new probes (D14) and quotes for the BOM (D15) are decided but on hold. No build, test, purchase, PCB or firmware work was started.
+
+## Session 2026-09-26: product appearance model and photoreal renders
+
+Amish chose this repo for the first batch of product renders on 2026-09-26.
+
+### What was added
+
+`cad/src/product_model.py` exposes `product_parts()` (48 parts: 31 shell, 12 internal, 3 accessory, 2 context), `TITLE` and `RENDER_VIEWS` (hero, exploded, and a low detail view that shows the accelerometer board through the lid window). It reuses PARAMS and derived() from `cad/src/model.py`; the hub, board, plate, jack, clamp, gauge, coupon and probe sizes and positions are as model.py. It adds:
+
+- Sensor hub (BOM 1): powder-coated die-cast base and lid with filleted edges, a gasket line at the parting plane, four lid screws, a teal name plate, an IP67 rating label, an accelerometer axis mark on the lid, two M12 cable glands, and the M12 panel connector with its moulded plug and knurled coupling nut (BOM 7).
+- Accelerometer board (BOM 2) with its sensor, header and screws; signal board (BOM 3) with the RP2040 class module, ADC and RS-485 modules, microSD socket and card (BOM 9), gauge terminal block, brass standoffs and a lit green status light.
+- Mounting plate (BOM 4): hard anodized with a filleted outline, top tab and ID label; M12 jack screw with lock nut and swivel pad; the two flange-tip clamps with jaws, M10 bolts, nuts, washers and screws to the plate foot.
+- Strain gauges (BOM 5): active foil gauge under its cover patch below the bottom flange; dummy gauge on its steel coupon, with its own cover, on the flange top.
+- Steel temperature probe (BOM 6) as a bonded boss with a lead strain relief.
+- Sensor cables (BOM 7) with UV-stable clips, and context (not in the BOM): a 520 mm section of the south girder, IPE 360 class with root fillets, and a strip of the timber deck.
+
+`README.md` now shows `media/render-hero.png` and links `media/render-exploded.png`; the orchestrator produces both files.
+
+### Differences from model.py (Proposed, awaiting Amish)
+
+1. **Clear window in the hub lid.** BOM line 1 is a die-cast aluminium box with a plain lid. The appearance model adds a clear polycarbonate window so the accelerometer and signal boards show. Proposed, awaiting Amish. Recommendation: keep the window as a render aid only and build with the plain die-cast lid, which keeps IP67 simple and the enclosure stiff; option: a gasketed window if a status light must be readable on site.
+2. **Parts left out to keep the render compact.** The north girder's gauge and cover, the air temperature probe under the deck, and the FieldNode core with its handrail post (BOM 8) are not shown; they stay in model.py and the concept media. Proposed, awaiting Amish. Recommendation: accept; FieldNode has its own renders in its repo.
+3. **Cable routes shortened and moved.** The cables end at the edges of the girder section. The far gauge cable crosses under the flange at x = +100 mm instead of x = -100 mm, so it no longer crosses the near gauge cable in front of the hub, and the FieldNode cable rises past the deck edge at x = -130 mm instead of x = 0 so it does not run across the lid window. Proposed, awaiting Amish. Recommendation: adopt both routes in model.py at the next CAD revision; neither changes an interface.
+4. **model.py cable clash (found while routing).** In model.py the far gauge cable passes the inner flange edges at y = ±522 mm, which is 7 mm inside the 515 mm flange edge, so the modelled cable runs through each bottom flange. The appearance model uses y = -508 mm. Proposed, awaiting Amish. Recommendation: change `inner_n` in model.py to `gy - bf / 2 - r - 3` at the next CAD revision; it is a modelling error, not a design change.
+5. **Probe sheath size.** model.py draws the steel probe as a 14 mm diameter by 15 mm boss (radius taken as `t_probe[0]` = 7 mm), while BOM line 6 gives a 7 mm by 60 mm sheath. The appearance model keeps the model.py envelope and treats it as a bonded boss holding the sheath. Proposed, awaiting Amish. Recommendation: show the 7 mm sheath and its clip in model.py at the next CAD revision.
+6. **The active gauge is not visible in the hero.** It sits under the bottom flange and every view is from above the studio floor; the hero shows the dummy gauge coupon and the gauge cable wrapping the flange tip, and the exploded view shows the active gauge and its cover. No change proposed.
+
+### Status
+
+This is an appearance model only: no tolerances, no fabrication detail, nothing past TRL 3. `trl: 3` and `trl_target: 3` are unchanged, and TRL 4 remains on hold. model.py, the BOM and the other documents were not edited.
+
+## Session 2026-09-27: owner decision applied
+
+Amish's instruction: "resolve the challenges for ConePro, BridgePulse, Grainguard and WellSense." For BridgePulse the decided item is item 4 of the 2026-09-26 session, the far gauge cable clash in `cad/src/model.py`. Decided by Amish on 2026-09-27; recorded in BRP-DDR-003.
+
+### What changed
+
+- `cad/src/model.py`: new function `far_cable_inner()` returns `gy - bf / 2 - cable_r - 3` (508 mm); `build_parts()` uses it for `inner_n` (was `gy - bf / 2 + r + 3`, 522 mm). No other dimension or interface changed.
+- `cad/src/product_model.py`: the far gauge cable now takes its inboard offset from `far_cable_inner()` instead of its own formula. The value is the same (y = -508 mm), so the appearance model's geometry is unchanged. Its far cable crossing at x = +100 mm (item 3) is kept, since that item is still open.
+- Regenerated: `cad/step/*.step`, `cad/stl/*.stl`, `media/hero.png`, `exploded.png`, `cutaway.png`, `flow.png`, `concept-blueprint.*`, `model.glb`, and `cad/drawings/BRP-DWG-001.*`, now Rev P3 (`cad/src/sheets.py`, revision row "Far gauge cable clear of bottom flanges per BRP-DDR-003").
+- `docs/decisions/0003-far-gauge-cable-route.md` (BRP-DDR-003 v0.1), new, and listed in `project.yaml` `trl_evidence`.
+- `docs/pdf/` rebuilt with `python .kit/render.py`.
+
+### Result
+
+The far gauge cable's vertical runs now sit 3 mm (cable surface) inboard of the inner bottom-flange edges at |y| = 515 mm. A check in build123d against 800 mm of both girders gives zero overlap (was 1,277 mm³ for the far cable), with the closest approach of any cable the intended 2 mm where it is clipped under a flange. No other document stated the old value; the BOM, requirements and calculations are unaffected (R9 clearance below the soffit is unchanged).
+
+### Photoreal renders
+
+Regeneration of `media/render-*.png` is **not needed**: no part in any RENDER_VIEWS view (hero, exploded, detail) changes shape, size or position.
+
+### Still Proposed, awaiting Amish
+
+From the 2026-09-26 session: item 1 (clear window in the hub lid), item 2 (parts left out of the appearance model), item 3 (far gauge cable crossing at x = +100 mm and FieldNode cable at x = -130 mm in the appearance model), and item 5 (steel probe drawn as a 14 mm boss against the 7 mm sheath in BOM line 6).
+
+### Status
+
+`trl: 3` and `trl_target: 3` are unchanged; TRL 4 remains on hold. No fabrication-level detail was added.

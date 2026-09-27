@@ -120,6 +120,13 @@ def path(points, r):
     return fuse(rods + balls)
 
 
+def far_cable_inner(p=PARAMS):
+    """|Y| of the far gauge cable's vertical runs between the girders: one cable radius plus 3 mm
+    inboard of the inner bottom-flange edges, so the cable clears both flanges (BRP-DDR-003)."""
+    d, bf, tf, tw = p["girder"]
+    return p["gy"] - bf / 2 - p["cable_r"] - 3
+
+
 def i_girder(p, y, x0, x1):
     d, bf, tf, tw = p["girder"]
     L, xc, z0 = x1 - x0, (x0 + x1) / 2, p["g_z0"]
@@ -197,7 +204,7 @@ def build_parts(p=PARAMS):
     near = path([(cxc, -p["gy"], under), (cxc, tipo, under), (cxc, tipo, z0 + tf + 30),
                  (-50, hyc, z0 + tf + 30), (-50, hyc, gland_z)], r)
     far_x = cxc - 60
-    inner_n = p["gy"] - bf / 2 + r + 3
+    inner_n = far_cable_inner(p)                           # inboard of the inner flange edges (BRP-DDR-003)
     inner_s = -inner_n
     far = path([(far_x, p["gy"], under), (far_x, inner_n, under), (far_x, inner_n, D["deck_z0"] - tf - r - 2),
                 (far_x, inner_s, D["deck_z0"] - tf - r - 2), (far_x, inner_s, under), (far_x, tipo, under),
