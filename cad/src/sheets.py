@@ -100,12 +100,13 @@ def main():
     det = Compound(children=[hub_group(P), i_girder(P, -P["gy"], -150, 150)])
     dviews = safe_project_views(det, work / "detail")
     dbb = det.bounding_box()
-    s = Sheet(project="BridgePulse", title="General arrangement at midspan", dwg_no="BRP-DWG-001", rev="P3",
-              author="Amish Chadha", date=DATE_P3, scale=0.05, theme="technical",
+    s = Sheet(project="BridgePulse", title="General arrangement at midspan", dwg_no="BRP-DWG-001", rev="P4",
+              author="Amish Chadha", date="2026-09-30", scale=0.05, theme="technical",
               material="6061 Al plate; bought-in parts per bom/bom.csv. PRELIMINARY, NOT FOR FABRICATION",
               revisions=[("P1", "Preliminary GA for TRL 3 (from cad/src/model.py)", DATE, "AC"),
                          ("P2", "Probe note per BRP-DDR-002", DATE, "AC"),
-                         ("P3", "Far gauge cable clear of bottom flanges per BRP-DDR-003", DATE_P3, "AC")])
+                         ("P3", "Far gauge cable clear of bottom flanges per BRP-DDR-003", DATE_P3, "AC"),
+                         ("P4", "Layout and labels tidied", "2026-09-30", "AC")])
     k = s.scale
     # front and right views only (a top view shows little but the two girders); placed by hand so
     # that detail A fits beside them
@@ -126,7 +127,7 @@ def main():
     L.append(f'<line x1="{Yr(bb.min.Y) - 4:.2f}" y1="{Zr(z0):.2f}" x2="{Yr(bb.max.Y) + 4:.2f}" y2="{Zr(z0):.2f}" stroke="{MUTED}" stroke-width="0.13" stroke-dasharray="3 1 0.6 1"/>')
     L.append(_t(Yr(bb.max.Y) + 4, Zr(z0) + 3.2, "SOFFIT", 1.9, 600, MUTED, "end"))
     L.append(f'<line x1="{Yr(-P["deck"][1] / 2):.2f}" y1="{Zr(D["deck_top"]):.2f}" x2="{Yr(P["deck"][1] / 2):.2f}" y2="{Zr(D["deck_top"]):.2f}" stroke="{MUTED}" stroke-width="0.25" stroke-dasharray="1.5 1"/>')
-    L.append(_t(Yr(P["deck"][1] / 2), Zr(D["deck_top"]) - 1.2, "DECK (NOT SHOWN)", 1.9, 600, MUTED, "end"))
+    L.append(_t(Yr(-P["gy"]) + 3, Zr(D["deck_top"]) - 1.2, "DECK (NOT SHOWN)", 1.9, 600, MUTED, "start"))
     yd = Zr(D["deck_top"] + 120)
     L += [ext(Yr(-P["gy"]), Zr(D["deck_z0"]) - 1, Yr(-P["gy"]), yd - 1), ext(Yr(P["gy"]), Zr(D["deck_z0"]) - 1, Yr(P["gy"]), yd - 1)]
     L += dim_h(Yr(-P["gy"]), Yr(P["gy"]), yd, f"{2 * P['gy']:.0f} girder centers")
@@ -137,7 +138,7 @@ def main():
     L += dim_v(xd - 6, Zr(D["post_top"]), Zr(D["deck_top"]), f"{P['post'][2]:,.0f} post")
     L += leader(Yr(D["fn_front"]), Zr(D["fn_z0"] + 100), Yr(D["fn_front"]) + 14, Zr(D["fn_z0"] + 700), "FIELDNODE CORE, ITEM 8")
     L += leader(Yr(P["gy"]), Zr(z0 + 250), Yr(P["gy"]) - 6, Zr(z0 + 900), "EXISTING GIRDER (NOT IN BOM)", "end")
-    L += leader(Yr(-P["gy"] - 40), Zr(z0 + 190), Yr(bb.min.Y) - 3, Zr(z0 - 150), "HUB, SEE DETAIL A", "end")
+    L += leader(Yr(-P["gy"] - 40), Zr(z0 + 190), Yr(bb.min.Y) - 3, Zr(z0 - 70), "HUB, SEE DETAIL A", "end")
 
     # front view (from -Y): X to the right
     x, y, w, h = c["front"]
