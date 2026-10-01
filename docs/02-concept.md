@@ -3,9 +3,9 @@ doc_id: BRP-PRC-001
 title: BridgePulse design precis
 project: BridgePulse
 doc_type: Design precis
-version: "0.5"
+version: "0.6"
 status: Draft
-date: '2026-09-25'
+date: '2026-10-01'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -29,6 +29,10 @@ revisions:
   date: '2026-09-30'
   author: Amish Chadha
   change: Design made constructable (BRP-DDR-004); mounting, hub penetrations, probe fixing and FieldNode post interface described as buildable; numbers from BRP-CAL-001 v0.3
+- version: "0.6"
+  date: '2026-10-01'
+  author: Amish Chadha
+  change: Budget treated as a value-engineering target; cost wording only, no number changed
 ---
 
 # BridgePulse design precis
@@ -37,7 +41,7 @@ revisions:
 
 BridgePulse is a clamp-on monitor for small bridges and footbridges. A sensor hub fixed to a girder at midspan records ambient vibration, strain and temperature for 10 minutes every hour, works out the bridge's natural frequencies and strain statistics on board, and sends a short summary through a FieldNode core over LoRaWAN to TwinKit or CityTwin. Over weeks the system learns how the frequencies move with temperature; a sustained shift outside that band is flagged to the bridge owner's engineer as a reason to inspect sooner. It is a research prototype that supports inspection, never a safety rating.
 
-The TRL 3 calculations (BRP-CAL-001) give 16.9 mW average draw at the FieldNode port, a 36-byte hourly uplink, 1.39 GB per month of raw records kept on a microSD card (22 months on 32 GB), and $252 of BridgePulse-specific parts ($378 with the FieldNode core), $2 over the $250 budget since the parts that make the design buildable were added (a decision for Amish, BRP-DEC-001). On the 7 m example footbridge the first mode is 23.9 Hz and the instrument can track it to 0.05 % an hour, but walkers' own mass lowers it by up to 6 % while they cross. The hub therefore gates out the time when someone is on the span; in simulation this brings the hourly scatter to 0.015 % or less (R2 at risk until recorded data confirm it; R3 not verifiable at TRL 3).
+The TRL 3 calculations (BRP-CAL-001) give 16.9 mW average draw at the FieldNode port, a 36-byte hourly uplink, 1.39 GB per month of raw records kept on a microSD card (22 months on 32 GB), and $252 of BridgePulse-specific parts ($378 with the FieldNode core), $2 over the $250 value-engineering target since the parts that make the design buildable were added (see the value engineering section of BRP-DEC-001). On the 7 m example footbridge the first mode is 23.9 Hz and the instrument can track it to 0.05 % an hour, but walkers' own mass lowers it by up to 6 % while they cross. The hub therefore gates out the time when someone is on the span; in simulation this brings the hourly scatter to 0.015 % or less (R2 at risk until recorded data confirm it; R3 not verifiable at TRL 3).
 
 ![Figure 1. BridgePulse on an example 7 m steel footbridge](../media/hero.png)
 
@@ -112,7 +116,7 @@ All values come from BRP-CAL-001 v0.3, which states its assumptions; they are ca
 
 ### Cost
 
-$252.00 of BridgePulse-specific parts against the $250 budget, which under BRP-DDR-001 D1 covers the BridgePulse-specific parts: $2.00 over, so R12 is not met; with the FieldNode core ($126.00, costed in its own repo) the complete monitor is $378.00. The TMP1826 class probes added $4.00, and the parts that make the design buildable (BRP-DDR-004) $4.00. Raising the budget or taking savings is open for Amish in the design decisions register (BRP-DEC-001). The bridge, installation labor, access equipment, traffic management and paint testing are not included.
+Value-engineering target $250 (a hypothetical control target, not a limit), which under BRP-DDR-001 D1 covers the BridgePulse-specific parts. Estimated cost of the constructable design: $252.00 ($2.00 over the target); with the FieldNode core ($126.00, costed in its own repo) the complete monitor is $378.00. The TMP1826 class probes added $4.00, and the parts that make the design buildable (BRP-DDR-004) $4.00. Savings worth trying are listed in the value engineering section of the design decisions register (BRP-DEC-001). The bridge, installation labor, access equipment, traffic management and paint testing are not included.
 
 ## Key design choices
 

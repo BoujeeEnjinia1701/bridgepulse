@@ -3,9 +3,9 @@ doc_id: BRP-CAL-001
 title: BridgePulse sizing calculations
 project: BridgePulse
 doc_type: Calculation
-version: "0.3"
+version: "0.4"
 status: Draft
-date: '2026-09-25'
+date: '2026-10-01'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -21,11 +21,15 @@ revisions:
   date: '2026-09-30'
   author: Amish Chadha
   change: Design made constructable (BRP-DDR-004); mounting mass, stiffness, retention and root fillets (H1, H2, H4, H4b), FieldNode on the square post (H8), cost (K) and results (L) re-run; R12 now not met by $2.00
+- version: "0.4"
+  date: '2026-10-01'
+  author: Amish Chadha
+  change: Budget treated as a value-engineering target; R12 wording only, no number changed
 ---
 
 # BridgePulse sizing calculations
 
-On paper, BridgePulse can measure what it sets out to measure, provided it ignores the moments when people are on a light footbridge. Of its thirteen requirements, seven are met (four by calculation, three by design), two are at risk, three cannot be verified at TRL 3, and one, the cost limit R12, is not met by $2.00 since version 0.3 added the parts that make the design buildable. The instrument itself is good enough: a simulation of the hourly record shows that, with a curve fit in place of simple peak picking, the scatter from sensor noise is 0.05 % at a modest 100 µg of bridge response, close to the theoretical floor. But on the 7 m example footbridge one 75 kg walker adds enough mass to lower the first mode by about 5 % while they cross, so an estimate taken over the whole record moves with who happened to walk over. Version 0.2 applies the decision recorded in BRP-DDR-002: the hub gates out each crossing, found from the strain step, and fits the rest of the record. In a time-varying simulation this cuts the scatter from 1.5 to 3.1 % to 0.015 % or less, so R2 moves from not met to at risk until recorded data confirm it. R3, the 1 % change detection, depends on how well a model can remove temperature and any remaining load effect; this note sets the target that model must meet (a daily residual of 0.75 % or less), which only field data can confirm. Version 0.2 also meets R5 on paper with a TMP1826 class probe and R7 with an 11-byte reduced summary, at a cost of $4. The calculations also changed the mounting: the TRL 2 plate, held only at the bottom flange, would have resonated at about 77 Hz, too close to the measured band, so the plate now lies against the web between the flanges and is jacked against the top flange. Version 0.3 follows the design for construction of BRP-DDR-004: the plate is kept clear of the root fillets and stands on two clamped foot blocks, which gives 135 to 271 Hz, and the added clamp parts and glands bring the BridgePulse-specific parts to $252.00, $2.00 over the $250 budget (R12, a decision for Amish in the design decisions register, BRP-DEC-001). Every number in this note is printed by `docs/04-calcs/sizing.py`; the tag in brackets, for example [A3], is the line of that script's output that carries it.
+On paper, BridgePulse can measure what it sets out to measure, provided it ignores the moments when people are on a light footbridge. Of its thirteen requirements, seven are met (four by calculation, three by design), two are at risk, three cannot be verified at TRL 3, and one, the cost requirement R12, is over the value-engineering target by $2.00 since version 0.3 added the parts that make the design buildable. The instrument itself is good enough: a simulation of the hourly record shows that, with a curve fit in place of simple peak picking, the scatter from sensor noise is 0.05 % at a modest 100 µg of bridge response, close to the theoretical floor. But on the 7 m example footbridge one 75 kg walker adds enough mass to lower the first mode by about 5 % while they cross, so an estimate taken over the whole record moves with who happened to walk over. Version 0.2 applies the decision recorded in BRP-DDR-002: the hub gates out each crossing, found from the strain step, and fits the rest of the record. In a time-varying simulation this cuts the scatter from 1.5 to 3.1 % to 0.015 % or less, so R2 moves from not met to at risk until recorded data confirm it. R3, the 1 % change detection, depends on how well a model can remove temperature and any remaining load effect; this note sets the target that model must meet (a daily residual of 0.75 % or less), which only field data can confirm. Version 0.2 also meets R5 on paper with a TMP1826 class probe and R7 with an 11-byte reduced summary, at a cost of $4. The calculations also changed the mounting: the TRL 2 plate, held only at the bottom flange, would have resonated at about 77 Hz, too close to the measured band, so the plate now lies against the web between the flanges and is jacked against the top flange. Version 0.3 follows the design for construction of BRP-DDR-004: the plate is kept clear of the root fillets and stands on two clamped foot blocks, which gives 135 to 271 Hz, and the added clamp parts and glands bring the BridgePulse-specific parts to $252.00, $2.00 over the $250 budget (R12, a decision for Amish in the design decisions register, BRP-DEC-001). Every number in this note is printed by `docs/04-calcs/sizing.py`; the tag in brackets, for example [A3], is the line of that script's output that carries it.
 
 > **Safety:** These are first-principles estimates for a paper proof of concept. They say nothing about whether any bridge is safe. BridgePulse supports inspection by qualified engineers and never replaces it. Installation is work at height, over water or near traffic, and may disturb lead paint; see BRP-PRC-001, Safety.
 
@@ -166,7 +170,7 @@ The hub (IP67) hangs in shade under the deck, and its parts are rated for the ra
 
 ## K. Cost (R12)
 
-The BOM has nine lines, all priced. Under R12 as redefined in BRP-DDR-001 (D1) and decided in BRP-DDR-002, the BridgePulse-specific parts cost $252.00 against the $250 budget, $2.00 (0.8 %) over. The FieldNode core adds $126.00, costed in its own repo, for a complete monitor of $378.00, which is $128.00 over $250 [K1]. The TRL 3 changes added a separate industrial microSD card ($20), the RS-485 and buck converter modules and the jack-screw plate; v0.2 adds $4.00 for the TMP1826 class probes ($6.00 each against $4.00); v0.3 adds $2.00 for the two probe glands (line 1) and $2.00 for the foot blocks, jaws, packers, jack block and their screws (line 4). **R12 is not met** by $2.00 on indicative prices. Whether to raise the budget or take the savings already named in BRP-DDR-002 (a consumer high-endurance card, a cheaper accelerometer breakout that still meets R1) is Amish's decision, open in BRP-DEC-001.
+The BOM has nine lines, all priced. Under R12 as redefined in BRP-DDR-001 (D1) and decided in BRP-DDR-002, the estimated cost of the BridgePulse-specific parts is $252.00 against the $250 value-engineering target (a hypothetical control target, not a limit), $2.00 (0.8 %) over. The FieldNode core adds $126.00, costed in its own repo, for a complete monitor of $378.00, which is $128.00 over the $250 target [K1]. The TRL 3 changes added a separate industrial microSD card ($20), the RS-485 and buck converter modules and the jack-screw plate; v0.2 adds $4.00 for the TMP1826 class probes ($6.00 each against $4.00); v0.3 adds $2.00 for the two probe glands (line 1) and $2.00 for the foot blocks, jaws, packers, jack block and their screws (line 4). **R12 is over the value-engineering target** by $2.00 on indicative prices. The savings already named in BRP-DDR-002 (a consumer high-endurance card, a cheaper accelerometer breakout that still meets R1) are listed in the value engineering section of BRP-DEC-001.
 
 ## L. Results against every requirement
 
@@ -174,7 +178,7 @@ The BOM has nine lines, all priced. Under R12 as redefined in BRP-DDR-001 (D1) a
 
 | ID | Requirement | Value | Target | Status |
 | --- | --- | --- | --- | --- |
-| R12 | Affordable | $252.00 BridgePulse-specific; $378.00 complete | $250 BridgePulse-specific parts | **Not met** ($2.00 over) |
+| R12 | Affordable | $252.00 BridgePulse-specific; $378.00 complete | $250 value-engineering target, BridgePulse-specific parts | **Over the value-engineering target by $2.00** |
 | R2 | Track natural frequencies | Bin 0.0153 Hz; sensor-noise scatter 0.053 % at 100 µg (curve fit); with load gating 0.015 % or less in simulation (1 to 20 crossings per record) | Bin 0.02 Hz; 0.2 % (1σ) over a steady day | At risk (met in simulation with gating; to be checked on recorded data) |
 | R10 | Survive outdoors | Hub in shade; FieldNode heat not met in its own repo; coating life unknown | IP67 and IP65; -20 to +50 °C; 5 years | At risk |
 | R3 | Flag structural change | Achievable if the daily residual after compensation is 0.75 % or less | 1 % within 14 days; one false flag per year | Not verifiable at TRL 3 |
@@ -188,7 +192,7 @@ The BOM has nine lines, all priced. Under R12 as redefined in BRP-DDR-001 (D1) a
 | R11 | Protect privacy | No camera or microphone | Structural readings only | Met by design |
 | R13 | Present results responsibly | Wording rule in the precis; not yet implemented | No safety rating anywhere | Met by design |
 
-Counts: 1 not met, 2 at risk, 3 not verifiable at TRL 3, 4 met on paper, 3 met by design (v0.2: 0 not met, 3 at risk, 3 not verifiable, 4 met on paper, 3 met by design; v0.1: 1 not met, 4 at risk, 3 not verifiable, 2 met on paper, 3 met by design).
+Counts: 0 not met, 1 over the value-engineering target (R12), 2 at risk, 3 not verifiable at TRL 3, 4 met on paper, 3 met by design (v0.2: 0 not met, 3 at risk, 3 not verifiable, 4 met on paper, 3 met by design; v0.1: 1 not met, 4 at risk, 3 not verifiable, 2 met on paper, 3 met by design).
 
 ## Checks against the TRL 2 figures
 

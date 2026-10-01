@@ -3,9 +3,9 @@ doc_id: BRP-BLD-001
 title: BridgePulse prototype build plan
 project: BridgePulse
 doc_type: Build plan
-version: "0.1"
+version: "0.2"
 status: Draft
-date: '2026-09-30'
+date: '2026-10-01'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -13,6 +13,10 @@ revisions:
     date: '2026-09-30'
     author: Amish Chadha
     change: First build plan; design made constructable (BRP-DDR-004)
+  - version: "0.2"
+    date: '2026-10-01'
+    author: Amish Chadha
+    change: Budget treated as a value-engineering target; cost line reworded
 ---
 
 # BridgePulse prototype build plan
@@ -25,7 +29,7 @@ revisions:
 
 *Figure 1. Every component pulled apart and numbered in build order. The FieldNode core (16) is drawn beside the hub; it goes on the handrail post.*
 
-The prototype is one BridgePulse monitor fitted to a bench rig that stands in for the middle of the example footbridge: two short offcuts of the girder section, 1.2 m apart, and a stub of the 50 mm square handrail post. At its heart is a sealed die-cast box, the sensor hub, holding an accelerometer board and a signal board. The hub is screwed to an aluminium plate that lies against the girder's web between its flanges, stands on two foot blocks clamped to the bottom flange and is wedged against the top flange by a jack screw, so nothing is drilled into the bridge. A strain gauge under each girder, a dummy gauge on a loose steel coupon beside each, and two temperature probes complete the sensors; cables run to the hub on push-on flange clips, and one cable takes power and data to a FieldNode core on the post. Figure 1 shows the 16 components in the order you make or fit them. Seven are made in a small workshop: the mounting plate, the foot blocks, the clamp jaws and packers, the jack block, the drilled hub box, the dummy gauge coupons and the temperature probes. Everything else is bought, or in the case of the FieldNode core built to its own plan. The work is sawing, drilling, tapping and filing aluminium and steel bar, drilling a die-cast box, potting two small sensors, bonding strain gauges, and wiring bought modules together. The parts cost about $252 for the BridgePulse parts, from the bill of materials, plus the FieldNode core.
+The prototype is one BridgePulse monitor fitted to a bench rig that stands in for the middle of the example footbridge: two short offcuts of the girder section, 1.2 m apart, and a stub of the 50 mm square handrail post. At its heart is a sealed die-cast box, the sensor hub, holding an accelerometer board and a signal board. The hub is screwed to an aluminium plate that lies against the girder's web between its flanges, stands on two foot blocks clamped to the bottom flange and is wedged against the top flange by a jack screw, so nothing is drilled into the bridge. A strain gauge under each girder, a dummy gauge on a loose steel coupon beside each, and two temperature probes complete the sensors; cables run to the hub on push-on flange clips, and one cable takes power and data to a FieldNode core on the post. Figure 1 shows the 16 components in the order you make or fit them. Seven are made in a small workshop: the mounting plate, the foot blocks, the clamp jaws and packers, the jack block, the drilled hub box, the dummy gauge coupons and the temperature probes. Everything else is bought, or in the case of the FieldNode core built to its own plan. The work is sawing, drilling, tapping and filing aluminium and steel bar, drilling a die-cast box, potting two small sensors, bonding strain gauges, and wiring bought modules together. The estimated cost of the BridgePulse parts is about $252 from the bill of materials (the value-engineering target is $250), plus the FieldNode core.
 
 > **Safety:** The girder offcuts weigh about 25 kg each: lift them with two people and stand them where they cannot tip. Old bridge steel may carry lead paint; test any offcut taken from a bridge before sanding it. Strain gauge adhesives, conditioners and potting epoxy are chemicals: read their safety data sheets, wear gloves and eye protection and ventilate. Cut steel and aluminium edges are sharp: deburr everything. The FieldNode core holds a lithium iron phosphate cell; follow its own plan's safety stops. Fitting the monitor to a real bridge is work at height, outside this plan (section 6, S8).
 

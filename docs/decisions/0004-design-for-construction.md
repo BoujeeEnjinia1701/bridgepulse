@@ -3,9 +3,9 @@ doc_id: BRP-DDR-004
 title: BridgePulse design for construction
 project: BridgePulse
 doc_type: Design decision record
-version: "0.1"
+version: "0.2"
 status: Draft
-date: '2026-09-30'
+date: '2026-10-01'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -13,6 +13,10 @@ revisions:
   date: '2026-09-30'
   author: Amish Chadha
   change: Changes that make the concept physically buildable, with the reason for each; made under Amish's 2026-09-30 instruction to make the design physically buildable; open for his review
+- version: "0.2"
+  date: '2026-10-01'
+  author: Amish Chadha
+  change: Budget treated as a value-engineering target; R12 wording only, no number changed
 ---
 
 # 0004: Design for construction
@@ -51,17 +55,17 @@ The changes below keep what the monitor does: the same hub, boards, sensors, pos
 | --- | --- | --- |
 | Mass | 3.21 kg on the girder (was 3.34 kg): hub 0.99 kg, plate 1.25 kg, foot blocks, jaws, packers, jack and fixings 0.97 kg (BRP-CAL-001 v0.3, H1). | Shorter plate; the clamp parts are now counted in their own materials; two more glands. |
 | Mount stiffness | Out-of-plane mode 135 to 271 Hz (was 126 to 253 Hz), still above the 120 Hz target (H2). | The plate between its supports is shorter. |
-| Cost | Line 1 $22.00 (+$2.00, two probe glands), line 4 $40.00 (+$2.00, foot blocks, jaws, packers, jack block and screws). BridgePulse-specific parts $252.00 against the $250 `budget_usd`: **R12 not met by $2.00** (K1). The budget is unchanged; see Table 3, A1. | Parts added for construction. |
+| Cost | Line 1 $22.00 (+$2.00, two probe glands), line 4 $40.00 (+$2.00, foot blocks, jaws, packers, jack block and screws). BridgePulse-specific parts $252.00 against the $250 value-engineering target (`budget_usd`): **over the target by $2.00** (K1). The target is unchanged; see Table 3, A1. | Parts added for construction. |
 | Depth below the soffit | 10 mm worst (jaws and cables), against 15 mm; R9 stays met on paper (H5). | Jaw is 10 mm thick so the M10 thread engages fully. |
 | Drawings | BRP-DWG-001 Rev P5; making sketches BRP-DWG-101 to 107 added. | Follows the model. |
-| Documents | BRP-CAL-001 v0.3, BRP-REQ-001 v0.5, BRP-PRC-001 v0.5, `bom/bom.csv`, `bom/bom-notes.md`. Requirement count: 1 not met (R12), 2 at risk (R2, R10), 3 not verifiable at TRL 3, 4 met on paper, 3 met by design. | Follows the model. |
+| Documents | BRP-CAL-001 v0.3, BRP-REQ-001 v0.5, BRP-PRC-001 v0.5, `bom/bom.csv`, `bom/bom-notes.md`. Requirement count: 1 over the value-engineering target (R12), 2 at risk (R2, R10), 3 not verifiable at TRL 3, 4 met on paper, 3 met by design. | Follows the model. |
 | Appearance model | `cad/src/product_model.py` and the photoreal renders still show the concept plate, tab, clamps, probe boss and glands; they need updating on Amish's Mac, where Blender is. | Renders are made there. |
 
 *Table 3. Proposed, awaiting Amish.*
 
 | # | Question | Options | Recommendation |
 | --- | --- | --- | --- |
-| A1 | R12 is now not met by $2.00 on indicative prices. | (a) raise `budget_usd` to $255; (b) take the first saving already named in BRP-DDR-002, a consumer high-endurance microSD card rated -25 to +85 °C, in place of the industrial card; (c) leave it until quotes at TRL 4. | (b), if the chosen card's datasheet covers -25 to +85 °C, since it keeps R10 and saves about $10. |
+| A1 | R12: the estimated cost is $2.00 over the $250 value-engineering target on indicative prices. | Savings worth trying: (a) take the first saving already named in BRP-DDR-002, a consumer high-endurance microSD card rated -25 to +85 °C, in place of the industrial card; (b) a cheaper accelerometer breakout that still meets R1; (c) leave it until quotes at TRL 4. | (a), if the chosen card's datasheet covers -25 to +85 °C, since it keeps R10 and saves about $10. |
 | A2 | The lanyard (the safety case's second retention path) has a hole in the plate but no anchor on the bridge: nothing may be drilled, the deck sits on the top flange and a loop cannot pass round a flange. | (a) a second, independent bought beam clamp on the bottom flange at least 150 mm along the span, with the lanyard to it; (b) to the handrail post; (c) to a cross frame or diaphragm where the bridge has one. | (a): independent of the foot clamps and the same on every bridge; it would add a bought clamp to BOM line 4. |
 | A3 | R9 asks for tamper-resistant fasteners on the post-mounted FieldNode; worm-drive band clamps undo with a screwdriver. | (a) stainless banding with a one-way crimped buckle for installations, worm-drive bands on the bench; (b) worm-drive bands with tamper-resistant screws; (c) a lockable cover. | (a). FieldNode should decide it for all its post installations. |
 | A4 | Where the far gauge cable crosses between the girders it needs support; the example bridge has no cross member in the model, and fixings into the deck count as drilling. | (a) run it along the nearest cross frame or diaphragm; (b) a tensioned 3 mm stainless catenary wire between two flange clamps; (c) decide at the site survey with the owner. | (c), preferring (a) wherever the bridge has a cross member near midspan. Depends on the first host bridge (BRP-DDR-001, O2). |
@@ -70,7 +74,7 @@ The changes below keep what the monitor does: the same hub, boards, sensors, pos
 ## Consequences
 
 - `design_state: constructable` in `project.yaml`. The build plan BRP-BLD-001 shows every component and step in pictures generated from the model (`cad/src/build_plan_media.py`); the open items above are in the design decisions register BRP-DEC-001, not in the plan.
-- R12 moves from at risk to not met ($2.00 over); every other requirement keeps its status.
+- R12 moves from at risk to over the value-engineering target ($2.00 over); every other requirement keeps its status.
 - The photoreal renders (`media/render-*.png`), `media/card.png`, `media/social-preview.png` and the appearance model `cad/src/product_model.py` still show the concept mount and need updating on Amish's Mac.
 - The FieldNode project is asked to confirm the square-post interface (no V-blocks, longer bands) and its own current mass and cost; nothing in the FieldNode repo is changed here.
 - TRL stays at 3; TRL 4 remains on hold. Nothing in this record authorizes building, testing or buying.

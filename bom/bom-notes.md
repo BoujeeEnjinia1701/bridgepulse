@@ -8,7 +8,7 @@ Prices are indicative (TRL 3), each with a supplier or supplier type in `bom/bom
 | FieldNode core (shared component, costed in the FieldNode repo) | 8 | $126.00 |
 | **Complete monitor for one bridge** | 1 to 9 | **$378.00** |
 
-`budget_usd` in `project.yaml` is $250. Under BRP-DDR-001 D1 (decided by Amish, 2026-09-25: go with recommendation), it covers the BridgePulse-specific parts: $252.00, which is $2.00 (0.8 %) over, so R12 is not met. The complete monitor is $128.00 over $250 and is always stated beside it. The savings named in BRP-DDR-002 (a consumer high-endurance card and a cheaper accelerometer breakout that still meets R1) would bring it back under; whether to take them or raise the budget is open for Amish in the design decisions register (`docs/06-design-decisions.md`).
+`budget_usd` in `project.yaml` is $250. Under BRP-DDR-001 D1 (decided by Amish, 2026-09-25: go with recommendation), it is a hypothetical value-engineering target covering the BridgePulse-specific parts. Estimated cost of the constructable design: $252.00, which is $2.00 (0.8 %) over the target. The complete monitor is $128.00 over the $250 target and is always stated beside it. The savings named in BRP-DDR-002 (a consumer high-endurance card and a cheaper accelerometer breakout that still meets R1) would bring it back under; see the value engineering section of the design decisions register (`docs/06-design-decisions.md`).
 
 Change under BRP-DDR-002: item 6 is now a TMP1826 class probe potted in a stainless sheath at $6.00 each (was a DS18B20 class probe at $4.00), so R5 holds down to -20 °C; +$4.00.
 

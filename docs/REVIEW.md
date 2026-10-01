@@ -281,7 +281,7 @@ Amish's instructions of 2026-09-30: an illustrated build plan for every repo in 
 - `cad/src/model.py` rebuilt as separate components (`build_components()`), with root fillets on the girders and 75 constructability checks (`python cad/src/model.py --check`): all pass.
 - New decision record `docs/decisions/0004-design-for-construction.md` (BRP-DDR-004 v0.1, Draft): every change below, made under Amish's 2026-09-30 instruction to make the design physically buildable; open for his review.
 - New `docs/05-build-plan.md` (BRP-BLD-001 v0.1) with pictures from `cad/src/build_plan_media.py`: an overview, 7 making sketches (`cad/drawings/BRP-DWG-101` to `107`), 2 hole layouts, 9 joint close-ups, 13 assembly step pictures and a wiring diagram, all in `docs/05-build-plan/`.
-- New `docs/06-design-decisions.md` (BRP-DEC-001 v0.1): 12 open decisions, 7 items to confirm when parts are bought, and the decisions made.
+- New `docs/06-design-decisions.md` (BRP-DEC-001 v0.1): 11 open decisions (budget treated as a value-engineering target on 2026-10-01), 7 items to confirm when parts are bought, and the decisions made.
 - Updated: BRP-CAL-001 v0.3 with `sizing.py`, BRP-REQ-001 v0.5, BRP-PRC-001 v0.5, `bom/bom.csv` (lines 1, 2, 4 to 8), `bom/bom-notes.md`, `cad/src/sheets.py` and BRP-DWG-001 Rev P5, STEP and STL, the concept media (`media/hero.png`, `exploded.png`, `cutaway.png`, `flow.png`, `concept-blueprint.*`, `model.glb`), `project.yaml` (`design_state: constructable`, evidence list) and `README.md` (links line and "Building the prototype").
 
 ### Design changes made for construction (BRP-DDR-004)
@@ -302,22 +302,21 @@ Amish's instructions of 2026-09-30: an illustrated build plan for every repo in 
 ### Key results
 
 - Mass on the girder 3.21 kg (was 3.34 kg); mount resonance 135 to 271 Hz (was 126 to 253 Hz; target 120 Hz); 10 mm below the soffit at most (R9 limit 15 mm); hub 9 mm inside the flange edge line.
-- **R12 is now not met:** BridgePulse-specific parts $252.00 against $250 ($2.00 over; the two probe glands and the clamp parts added $4.00). Complete monitor $378.00. `budget_usd` is unchanged.
-- Requirement count (BRP-CAL-001 v0.3): 1 not met (R12), 2 at risk (R2, R10), 3 not verifiable at TRL 3, 4 met on paper, 3 met by design.
+- **R12 is over the value-engineering target:** value-engineering target $250 (a hypothetical control target, not a limit); estimated cost of the constructable design $252.00 ($2.00 over the target; the two probe glands and the clamp parts added $4.00). Complete monitor $378.00. `budget_usd` is unchanged.
+- Requirement count (BRP-CAL-001 v0.3): 1 over the value-engineering target (R12), 2 at risk (R2, R10), 3 not verifiable at TRL 3, 4 met on paper, 3 met by design.
 
 ### Proposed, awaiting Amish (in BRP-DEC-001)
 
 1. Accept the design for construction (BRP-DDR-004, A5). Recommendation: accept.
-2. Budget, R12 $2.00 over. Recommendation: take the consumer high-endurance card saving already named in BRP-DDR-002, if its datasheet covers -25 to +85 °C.
-3. Lanyard anchor (safety case). Recommendation: a second, independent beam clamp on the bottom flange.
-4. Tamper resistance of the FieldNode on a public footbridge (R9). Recommendation: one-way crimped stainless banding for installations.
-5. Support for the far gauge cable between the girders. Recommendation: decide at the site survey, preferring a cross member.
+2. Lanyard anchor (safety case). Recommendation: a second, independent beam clamp on the bottom flange.
+3. Tamper resistance of the FieldNode on a public footbridge (R9). Recommendation: one-way crimped stainless banding for installations.
+4. Support for the far gauge cable between the girders. Recommendation: decide at the site survey, preferring a cross member.
 
-Items O1 to O4 and review items 1 to 3 of 2026-09-26 remain open, as listed in the register.
+The savings worth trying against the value-engineering target (a consumer high-endurance card, a cheaper accelerometer breakout) are in the value engineering section of the register. Items O1 to O4 and review items 1 to 3 of 2026-09-26 remain open, as listed in the register.
 
 ### Safety
 
-The build plan carries safety stops for lifting the girder offcuts, lead paint, gauge chemicals, first power and the FieldNode cell, and keeps installation on a bridge outside the plan. The lanyard anchor (item 3) is part of the safety case and is not yet chosen.
+The build plan carries safety stops for lifting the girder offcuts, lead paint, gauge chemicals, first power and the FieldNode cell, and keeps installation on a bridge outside the plan. The lanyard anchor (item 2) is part of the safety case and is not yet chosen.
 
 ### Media and renders
 
