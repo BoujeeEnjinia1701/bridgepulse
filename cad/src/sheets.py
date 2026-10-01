@@ -1,4 +1,4 @@
-"""BridgePulse general arrangement sheet BRP-DWG-001, Rev P3 (TRL 3).
+"""BridgePulse general arrangement sheet BRP-DWG-001, Rev P5 (TRL 3).
 
 Run from the repo root:  python cad/src/sheets.py
 Writes cad/drawings/BRP-DWG-001.svg, .pdf and .png from the parametric model in cad/src/model.py
@@ -100,13 +100,14 @@ def main():
     det = Compound(children=[hub_group(P), i_girder(P, -P["gy"], -150, 150)])
     dviews = safe_project_views(det, work / "detail")
     dbb = det.bounding_box()
-    s = Sheet(project="BridgePulse", title="General arrangement at midspan", dwg_no="BRP-DWG-001", rev="P4",
+    s = Sheet(project="BridgePulse", title="General arrangement at midspan", dwg_no="BRP-DWG-001", rev="P5",
               author="Amish Chadha", date="2026-09-30", scale=0.05, theme="technical",
               material="6061 Al plate; bought-in parts per bom/bom.csv. PRELIMINARY, NOT FOR FABRICATION",
               revisions=[("P1", "Preliminary GA for TRL 3 (from cad/src/model.py)", DATE, "AC"),
                          ("P2", "Probe note per BRP-DDR-002", DATE, "AC"),
                          ("P3", "Far gauge cable clear of bottom flanges per BRP-DDR-003", DATE_P3, "AC"),
-                         ("P4", "Layout and labels tidied", "2026-09-30", "AC")])
+                         ("P4", "Layout and labels tidied", "2026-09-30", "AC"),
+                         ("P5", "Made constructable per BRP-DDR-004", "2026-09-30", "AC")])
     k = s.scale
     # front and right views only (a top view shows little but the two girders); placed by hand so
     # that detail A fits beside them
@@ -174,11 +175,11 @@ def main():
     s.add_svg(views["iso"], 304, 40, 112, 110, label="Isometric view", sublabel="Not to scale; deck omitted")
     s.add_notes("Main dimensions and interfaces (mm)", [
         f"Hub {P['hub'][0]:.0f} x {P['hub'][1]:.0f} x {P['hub'][2]:.0f} IP67, {D['hub_inside_tip']:.0f} inside the flange tip line",
-        f"Plate {P['plate_w']:.0f} x {D['plate_h']:.0f} x {P['plate_t']:.0f} Al on the bottom flange, jack to the top flange",
-        f"Two flange-tip clamps at x = +/-{P['clamp_x']:.0f}; nothing drilled or welded",
+        f"Plate {P['plate_w']:.0f} x {D['plate_h']:.0f} x {P['plate_t']:.0f} Al on the web, {P['fillet_gap']:.0f} clear of each flange",
+        f"Foot clamps at x = +/-{P['clamp_x']:.0f}; M12 jack to top flange; no drilling",
         f"Gauge covers under each flange at midspan; 10 max below soffit (R9: 15)",
         f"FieldNode on the post, base {P['fn_base_above_deck']:.0f} above deck; M12 5-pin, RS-485, 5 V",
-        "Probes (item 6) TMP1826 class in 7 dia sheaths; steel on web, air in shade",
+        "Probes (item 6) TMP1826 class, 7 dia sheaths; steel on flange, air in shade",
         f"Example girders IPE 360 class at {2 * P['gy']:.0f} centers, span {P['bearing_span']:,.0f}",
         f"Third-angle; front view from -Y; {P['seg']:.0f} segment at midspan (x = 0)",
     ], x=276, y=166, width=146)

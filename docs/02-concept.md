@@ -3,7 +3,7 @@ doc_id: BRP-PRC-001
 title: BridgePulse design precis
 project: BridgePulse
 doc_type: Design precis
-version: "0.4"
+version: "0.5"
 status: Draft
 date: '2026-09-25'
 author: Amish Chadha
@@ -25,6 +25,10 @@ revisions:
   date: '2026-09-25'
   author: Amish Chadha
   change: Recommendations accepted by Amish (DDR-002); load gating and TwinKit load regression, 11-byte reduced summary, TMP1826 class probes; numbers from BRP-CAL-001 v0.2
+- version: "0.5"
+  date: '2026-09-30'
+  author: Amish Chadha
+  change: Design made constructable (BRP-DDR-004); mounting, hub penetrations, probe fixing and FieldNode post interface described as buildable; numbers from BRP-CAL-001 v0.3
 ---
 
 # BridgePulse design precis
@@ -33,7 +37,7 @@ revisions:
 
 BridgePulse is a clamp-on monitor for small bridges and footbridges. A sensor hub fixed to a girder at midspan records ambient vibration, strain and temperature for 10 minutes every hour, works out the bridge's natural frequencies and strain statistics on board, and sends a short summary through a FieldNode core over LoRaWAN to TwinKit or CityTwin. Over weeks the system learns how the frequencies move with temperature; a sustained shift outside that band is flagged to the bridge owner's engineer as a reason to inspect sooner. It is a research prototype that supports inspection, never a safety rating.
 
-The TRL 3 calculations (BRP-CAL-001) give 16.9 mW average draw at the FieldNode port, a 36-byte hourly uplink, 1.39 GB per month of raw records kept on a microSD card (22 months on 32 GB), and $248 of BridgePulse-specific parts ($374 with the FieldNode core). On the 7 m example footbridge the first mode is 23.9 Hz and the instrument can track it to 0.05 % an hour, but walkers' own mass lowers it by up to 6 % while they cross. The hub therefore gates out the time when someone is on the span; in simulation this brings the hourly scatter to 0.015 % or less (R2 at risk until recorded data confirm it; R3 not verifiable at TRL 3).
+The TRL 3 calculations (BRP-CAL-001) give 16.9 mW average draw at the FieldNode port, a 36-byte hourly uplink, 1.39 GB per month of raw records kept on a microSD card (22 months on 32 GB), and $252 of BridgePulse-specific parts ($378 with the FieldNode core), $2 over the $250 budget since the parts that make the design buildable were added (a decision for Amish, BRP-DEC-001). On the 7 m example footbridge the first mode is 23.9 Hz and the instrument can track it to 0.05 % an hour, but walkers' own mass lowers it by up to 6 % while they cross. The hub therefore gates out the time when someone is on the span; in simulation this brings the hourly scatter to 0.015 % or less (R2 at risk until recorded data confirm it; R3 not verifiable at TRL 3).
 
 ![Figure 1. BridgePulse on an example 7 m steel footbridge](../media/hero.png)
 
@@ -41,7 +45,7 @@ The TRL 3 calculations (BRP-CAL-001) give 16.9 mW average draw at the FieldNode 
 
 ## How it works
 
-1. **Sense.** A low-noise 3-axis MEMS accelerometer, fixed inside the hub to the enclosure base, picks up the bridge's response to wind, footfall and traffic. The hub sits on an aluminium plate that stands on the bottom flange against the web and is wedged against the top flange by a jack screw, so that its own mounting resonance (126 to 253 Hz) is well above the measured band. Two strain gauge half-bridges under the bottom flanges of both girders at midspan measure bending strain. Two temperature probes measure the steel and the shaded air under the deck.
+1. **Sense.** A low-noise 3-axis MEMS accelerometer, fixed inside the hub to the enclosure base, picks up the bridge's response to wind, footfall and traffic. The hub is screwed to an aluminium plate that lies against the web, stands on two foot blocks clamped to the bottom flange and is wedged against the top flange by a jack screw, so that its own mounting resonance (135 to 271 Hz) is well above the measured band. Two strain gauge half-bridges under the bottom flanges of both girders at midspan measure bending strain. Two temperature probes measure the steel and the shaded air under the deck.
 2. **Record.** Once an hour the FieldNode core switches on the 5 V rail of its sensor port. The hub boots, warms the gauges for 20 s and samples for 600 s: acceleration at 250 Hz on three axes, strain at 20 Hz on two channels, temperature once a minute. The raw record goes to an industrial microSD card so an engineer can download it later.
 3. **Reduce.** The hub first finds each crossing from the strain step and gates out that stretch of the record, with 0.25 s either side and tapered edges, so that the frequency is estimated only while nobody's mass is on the span (BRP-DDR-002). It then reads the record back from the card one axis at a time, computes averaged spectra (Welch method, 65.5 s Hann segments with 50 % overlap), and estimates the frequencies of the first modes below 60 Hz by fitting a single-degree-of-freedom spectrum around each peak. A fit is accepted only if the peak stands 10 dB above the fitted noise and the damping is plausible; otherwise the hour is sent as "no clear peak", never as a shift. It also computes peak amplitudes, RMS acceleration, and the strain minimum, maximum and mean on each channel.
 4. **Send.** The 36-byte summary passes over RS-485 on the M12 cable to the FieldNode core, which sends it as one LoRaWAN uplink; the rail is then switched off until the next hour. Where the data rate in use allows only 11 bytes (US915 DR0, AS923 DR2 with dwell time), the hub sends an 11-byte reduced summary instead: first frequency, its amplitude, the two strain means, steel temperature and a status byte with the gated seconds (BRP-CAL-001, G).
@@ -58,10 +62,10 @@ Numbers match the exploded view (Figure 3) and `bom/bom.csv`. The general arrang
 
 | No. | Component | Role |
 | --- | --- | --- |
-| 1 | Sensor hub enclosure, die-cast aluminium, IP67, 170 × 64 × 110 mm | Stiff, sealed housing that couples the accelerometer to the plate; two M12 glands and an M12 panel connector underneath |
+| 1 | Sensor hub enclosure, die-cast aluminium, IP67, 170 × 64 × 110 mm | Stiff, sealed housing whose base is screwed flat to the plate, coupling the accelerometer to it; two M16 gauge glands, two M12 probe glands and an M12 panel connector underneath |
 | 2 | Accelerometer board, ADXL355 class | 3-axis, 22.5 µg/√Hz noise density, 200 µA in measurement mode ([Analog Devices](https://www.analog.com/en/products/adxl355.html)) |
 | 3 | Signal board: 24-bit bridge ADC (ADS1220 class), RP2040 class microcontroller, 5 V to 3.3 V buck converter, RS-485 transceiver, microSD socket, gauge excitation switch | Sampling, spectra, features, raw storage, link to FieldNode |
-| 4 | Mounting plate, 200 × 313 × 8 mm 6061 aluminium, with an M12 jack screw to the top flange and two flange-tip clamps | Holds the hub between the flanges, inside the girder outline; no drilling |
+| 4 | Mounting plate, 200 × 291 × 8 mm 6061 aluminium, on two foot blocks clamped to the bottom flange tip by steel jaws, with an M12 jack screw to the top flange | Holds the hub between the flanges, inside the girder outline, clear of the root fillets; no drilling |
 | 5 | Strain gauge half-bridges (2): each an active 350 Ω foil gauge on the flange plus a dummy gauge on an unstrained coupon of the same steel, with protective coating and cover | Bending strain at midspan of each girder, temperature-compensated |
 | 6 | Temperature probes (2), TMP1826 class 1-Wire sensor potted in a stainless sheath, ±0.3 °C from −40 to +105 °C ([Texas Instruments](https://www.ti.com/product/TMP1826)) | Steel and shaded air temperature for frequency compensation |
 | 7 | Sensor cables and M12 connectors | Gauges to hub, hub to FieldNode |
@@ -78,7 +82,7 @@ Numbers match the exploded view (Figure 3) and `bom/bom.csv`. The general arrang
 
 ## Key numbers (BRP-CAL-001)
 
-All values come from BRP-CAL-001 v0.2, which states its assumptions; they are calculations, not measurements.
+All values come from BRP-CAL-001 v0.3, which states its assumptions; they are calculations, not measurements.
 
 ### Example bridge
 
@@ -102,13 +106,13 @@ All values come from BRP-CAL-001 v0.2, which states its assumptions; they are ca
 | Average, with the rail off between records | **16.9 mW** (0.41 Wh per day; 17 % of FieldNode's 100 mW allowance) |
 | Raw data | 1.90 MB per hour; 1.39 GB per month; 22 months on 32 GB |
 | Uplink | 36 bytes hourly, 329 ms at SF9; 11-byte reduced summary where the data rate allows only 11 bytes, 371 ms at SF10 |
-| Mass on the girder | 3.34 kg (hub 0.87 kg, plate 1.35 kg, jack and clamps 1.12 kg); FieldNode core 2.41 kg |
-| Mounting resonance of the hub | 126 to 253 Hz (TRL 2 arrangement about 77 Hz) |
+| Mass on the girder | 3.21 kg (hub 0.99 kg, plate 1.25 kg, foot clamps, jack and fixings 0.97 kg); FieldNode core 2.41 kg |
+| Mounting resonance of the hub | 135 to 271 Hz (TRL 2 arrangement about 77 Hz) |
 | Depth below the soffit | 10 mm at most (limit 15 mm) |
 
 ### Cost
 
-$248.00 of BridgePulse-specific parts against the $250 budget, which under BRP-DDR-001 D1 covers the BridgePulse-specific parts, a $2.00 margin; with the FieldNode core ($126.00, costed in its own repo) the complete monitor is $374.00. The TMP1826 class probes added $4.00. The bridge, installation labor, access equipment, traffic management and paint testing are not included.
+$252.00 of BridgePulse-specific parts against the $250 budget, which under BRP-DDR-001 D1 covers the BridgePulse-specific parts: $2.00 over, so R12 is not met; with the FieldNode core ($126.00, costed in its own repo) the complete monitor is $378.00. The TMP1826 class probes added $4.00, and the parts that make the design buildable (BRP-DDR-004) $4.00. Raising the budget or taking savings is open for Amish in the design decisions register (BRP-DEC-001). The bridge, installation labor, access equipment, traffic management and paint testing are not included.
 
 ## Key design choices
 

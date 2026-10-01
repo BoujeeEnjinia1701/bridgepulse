@@ -1,4 +1,4 @@
-"""BridgePulse sizing calculations, BRP-CAL-001 v0.2 (TRL 3).
+"""BridgePulse sizing calculations, BRP-CAL-001 v0.3 (TRL 3).
 
 Run from the repo root:  python docs/04-calcs/sizing.py
 Prints every number quoted in docs/04-calcs/01-sizing.md. Each line carries a tag such as
@@ -377,9 +377,11 @@ V = volumes(P)
 m_shell = V["hub_shell"] * DENSITY["al"]
 m_hub = m_shell + 0.10
 m_plate = V["plate"] * DENSITY["al"]
-m_other = V["mount_other"] * DENSITY["steel"]
+m_other = V["mount_al"] * DENSITY["al"] + V["mount_steel"] * DENSITY["steel"]
 tag("H1", f"Hub {m_hub:.2f} kg (die-cast shell {m_shell:.2f} kg, boards 0.10 kg assumed); plate {m_plate:.2f} kg; "
-          f"jack, tab and clamps {m_other:.2f} kg; on the girder {m_hub + m_plate + m_other:.2f} kg; FieldNode core 2.41 kg (FND-CAL-001)")
+          f"foot blocks, jaws, packers, jack block, jack screw and fixings {m_other:.2f} kg "
+          f"({V['mount_al'] * DENSITY['al']:.2f} kg aluminium, {V['mount_steel'] * DENSITY['steel']:.2f} kg steel); "
+          f"on the girder {m_hub + m_plate + m_other:.2f} kg; FieldNode core 2.41 kg (FND-CAL-001)")
 E_al = 69e9
 b_, t_, Lp = P["plate_w"] / 1000, P["plate_t"] / 1000, D["plate_h"] / 1000
 Ip = b_ * t_ ** 3 / 12
@@ -397,7 +399,10 @@ k_cant = 3 * 193e9 * (b2 * t2 ** 3 / 12) / L2 ** 3
 m2 = m_hub + 0.25 * 0.26 * 0.26 * 0.006 * 7950
 f_cant = math.sqrt(k_cant / m2) / (2 * math.pi)
 tag("H3", f"TRL 2 arrangement (6 mm stainless plate held only at the bottom flange, hub {L2 * 1000:.0f} mm up): {f_cant:.0f} Hz, inside the measured band")
-tag("H4", "Retention: clamp jaws hook under the flange tip and the jack screw bears on the top flange; the lanyard is the second path")
+tag("H4", "Retention: each foot block is clamped to the bottom flange by a steel jaw under the flange, a packer outside the tip and an "
+          "M10 bolt; the jack screw bears on the top flange; the lanyard is the second path (anchor open, BRP-DEC-001)")
+tag("H4b", f"Root fillets (IPE 360, {P['root_r']:.0f} mm): plate ends {P['fillet_gap']:.0f} mm from each flange; foot blocks chamfered "
+           f"{P['foot'][3]:.0f} mm over the fillet; checked in cad/src/model.py --check")
 shapes = build_parts(P)
 soffit = P["g_z0"]
 low = {k: soffit - s.bounding_box().min.Z for k, s in shapes.items()}
@@ -414,7 +419,8 @@ W_post = (s_ ** 4 - (s_ - 2 * t3) ** 4) / 12 / (s_ / 2) * 1e-9
 tag("H7", f"FieldNode on the post at 35 m/s: panel 52.2 N (FND-CAL-001), enclosure {F_enc:.0f} N; moment at deck level {M_post:.0f} N m; "
           f"stress in a {s_:.0f} x {t3:.0f} mm post {M_post / W_post / 1e6:.1f} MPa; a 1 kN load at the rail top would give "
           f"{1000 * P['post'][2] / 1000 / W_post / 1e6:.0f} MPa")
-tag("H8", f"FieldNode V-blocks fit round poles; the square post's diagonal is {s_ * math.sqrt(2):.1f} mm against the 71 mm upper fit in FND-CAL-001")
+tag("H8", f"FieldNode V-blocks fit round poles, not a {s_:.0f} mm square post (diagonal {s_ * math.sqrt(2):.1f} mm); on the post the V-blocks "
+          "are left off, the back plate bears on the post's flat face and longer bands go round the post and through the plate slots (BRP-DDR-004)")
 result("R9", "Keep clear of what passes under and over", f"{worst:.0f} mm below the soffit; hub inside the flange outline",
        "15 mm; deck side only the FieldNode", "Met on paper")
 

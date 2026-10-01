@@ -270,3 +270,59 @@ From the 2026-09-26 session: item 1 (clear window in the hub lid), item 2 (parts
 - Kit 1.5.0 synced: STANDARDS v1.5 (sections 12 to 15: product renders, storefront images and image quality, public release, authorship and signing), `.kit/cards.py`, `.kit/image_qc.py`, `.kit/release_gate.py`, issue templates, and the `/render-product` and `/release` commands. `CLAUDE.md` now matches `.kit/CLAUDE.md`.
 - Every `media/render-*.png` recaptioned from its original render with the new layout: the title, concept label and repository sit in a band above the render and the view note in a band below it, each line wrapped to the image width, so no text overlaps other text or the render or runs off the image. `media/card.png` and `media/social-preview.png` regenerated with the same rules.
 - `python .kit/image_qc.py` and `python .kit/release_gate.py` pass. trl stays 3.
+
+## Session 2026-09-30: design for construction and prototype build plan (kit 1.7.0)
+
+Amish's instructions of 2026-09-30: an illustrated build plan for every repo in the approved format, with outstanding decisions kept out of the plan in a separate design decisions register, and "If you are realising that the design cannot be built as per concept - fix the design assumptions to match and be physically feasible as you draw the illustrations."
+
+### What was done
+
+- Kit 1.7.0 installed (`.kit/`, `.claude/commands/`); `CLAUDE.md` matches `.kit/CLAUDE.md`.
+- `cad/src/model.py` rebuilt as separate components (`build_components()`), with root fillets on the girders and 75 constructability checks (`python cad/src/model.py --check`): all pass.
+- New decision record `docs/decisions/0004-design-for-construction.md` (BRP-DDR-004 v0.1, Draft): every change below, made under Amish's 2026-09-30 instruction to make the design physically buildable; open for his review.
+- New `docs/05-build-plan.md` (BRP-BLD-001 v0.1) with pictures from `cad/src/build_plan_media.py`: an overview, 7 making sketches (`cad/drawings/BRP-DWG-101` to `107`), 2 hole layouts, 9 joint close-ups, 13 assembly step pictures and a wiring diagram, all in `docs/05-build-plan/`.
+- New `docs/06-design-decisions.md` (BRP-DEC-001 v0.1): 12 open decisions, 7 items to confirm when parts are bought, and the decisions made.
+- Updated: BRP-CAL-001 v0.3 with `sizing.py`, BRP-REQ-001 v0.5, BRP-PRC-001 v0.5, `bom/bom.csv` (lines 1, 2, 4 to 8), `bom/bom-notes.md`, `cad/src/sheets.py` and BRP-DWG-001 Rev P5, STEP and STL, the concept media (`media/hero.png`, `exploded.png`, `cutaway.png`, `flow.png`, `concept-blueprint.*`, `model.glb`), `project.yaml` (`design_state: constructable`, evidence list) and `README.md` (links line and "Building the prototype").
+
+### Design changes made for construction (BRP-DDR-004)
+
+1. Mounting plate shortened to 290.6 mm and kept 22 mm clear of each flange, so it lies flat on the web between the 18 mm root fillets instead of standing on one.
+2. Foot clamps redesigned: a stepped aluminium foot block screwed to the plate (two M6), with a 12 mm chamfer over the root fillet, clamped to the bottom flange by a 10 mm steel jaw, a packer outside the flange edge and an M10 bolt that ends inside the jaw.
+3. Jack tab replaced by a 30 mm jack block screwed to the plate, tapped M12 the full depth, with the screw's head and lock nut below it; the screw bears 26 mm out from the web, clear of the top root fillet.
+4. Hub fixed to the plate by four M5 screws from inside the box with bonded sealing washers.
+5. Accelerometer board on four 5 mm spacers and signal board (now 92 x 68 mm) on four 14 mm standoffs, on countersunk M3 screws from outside the base.
+6. Two M12 probe glands added; five penetrations in one row, 9 mm or more apart.
+7. Steel probe is now the 7 x 60 mm sheath on the bottom flange top under a push-on flange clip (closes item 5 of the 2026-09-26 review in `model.py`).
+8. Air probe hangs from the far gauge cable's crossing, its lead alongside that cable (it had hung from nothing).
+9. Dummy coupons moved 35 mm out from the web, clear of the fillet, and set on silicone so they are not strained.
+10. Gauge cover patches 60 x 40 mm (were 90 x 45), so no cable passes through them.
+11. Cables held by push-on spring-steel flange clips; the FieldNode cable rises beside the post (it ran inside the post's outline) and plugs into port B (it ended under the antenna).
+12. FieldNode on the square post: V-blocks left off, back plate flat on the post, band clamps one size longer through the plate slots; the panel in this repo's FieldNode envelope now faces away from the post (it faced the post), and the bracket envelope starts on the back plate.
+
+### Key results
+
+- Mass on the girder 3.21 kg (was 3.34 kg); mount resonance 135 to 271 Hz (was 126 to 253 Hz; target 120 Hz); 10 mm below the soffit at most (R9 limit 15 mm); hub 9 mm inside the flange edge line.
+- **R12 is now not met:** BridgePulse-specific parts $252.00 against $250 ($2.00 over; the two probe glands and the clamp parts added $4.00). Complete monitor $378.00. `budget_usd` is unchanged.
+- Requirement count (BRP-CAL-001 v0.3): 1 not met (R12), 2 at risk (R2, R10), 3 not verifiable at TRL 3, 4 met on paper, 3 met by design.
+
+### Proposed, awaiting Amish (in BRP-DEC-001)
+
+1. Accept the design for construction (BRP-DDR-004, A5). Recommendation: accept.
+2. Budget, R12 $2.00 over. Recommendation: take the consumer high-endurance card saving already named in BRP-DDR-002, if its datasheet covers -25 to +85 °C.
+3. Lanyard anchor (safety case). Recommendation: a second, independent beam clamp on the bottom flange.
+4. Tamper resistance of the FieldNode on a public footbridge (R9). Recommendation: one-way crimped stainless banding for installations.
+5. Support for the far gauge cable between the girders. Recommendation: decide at the site survey, preferring a cross member.
+
+Items O1 to O4 and review items 1 to 3 of 2026-09-26 remain open, as listed in the register.
+
+### Safety
+
+The build plan carries safety stops for lifting the girder offcuts, lead paint, gauge chemicals, first power and the FieldNode cell, and keeps installation on a bridge outside the plan. The lanyard anchor (item 3) is part of the safety case and is not yet chosen.
+
+### Media and renders
+
+The photoreal renders (`media/render-*.png`), `media/card.png`, `media/social-preview.png` and the appearance model `cad/src/product_model.py` are made on Amish's Mac and were not regenerated. They are now **stale**: they show the concept plate standing on the flange, the tab, the old clamps, the probe boss and two glands. `media/render-*.png` are not in this cloud copy.
+
+### Recommended next step
+
+Amish reviews BRP-DDR-004 and the register. TRL stays at 3; TRL 4 remains on hold.

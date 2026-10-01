@@ -3,7 +3,7 @@ doc_id: BRP-REQ-001
 title: BridgePulse requirements
 project: BridgePulse
 doc_type: Requirements
-version: "0.4"
+version: "0.5"
 status: Draft
 date: '2026-09-25'
 author: Amish Chadha
@@ -25,6 +25,10 @@ revisions:
   date: '2026-09-25'
   author: Amish Chadha
   change: Recommendations accepted by Amish (DDR-002); R2 method (load gating), R5 verification, R7 restated with an 11-byte reduced summary; status from BRP-CAL-001 v0.2
+- version: "0.5"
+  date: '2026-09-30'
+  author: Amish Chadha
+  change: Status from BRP-CAL-001 v0.3 after the design for construction (BRP-DDR-004); R12 now not met by $2.00; no target changed
 ---
 
 # BridgePulse requirements
@@ -35,9 +39,11 @@ These are first-pass requirements for the concept. Targets are proposals for rev
 
 **Changes in v0.3.** R12 is redefined to cost the BridgePulse-specific parts, with the FieldNode core costed in its own repo and the complete cost stated beside it (BRP-DDR-001, D1; decided by Amish, 2026-09-25: go with recommendation). No other target changes.
 
+**Changes in v0.5 (BRP-DDR-004).** No target changes. With the design made buildable, BRP-CAL-001 v0.3 finds R12 not met by $2.00; R9 stays met on paper (10 mm below the soffit, the bolts now ending inside the clamp jaws).
+
 **Changes in v0.4 (BRP-DDR-002).** R2 keeps its target; its method now gates out the time when people are on the span, backed by a load regression in TwinKit, and is to be checked on recorded data before any change to the target. R5 keeps its target; verification adds an ice-point check, and the probe is now TMP1826 class. R7 is restated so that an 11-byte reduced summary is used wherever the data rate in use limits the payload to 11 bytes. Statuses follow BRP-CAL-001 v0.2.
 
-Table 1. Requirements and status at TRL 3 (BRP-CAL-001 v0.2, Table 5).
+Table 1. Requirements and status at TRL 3 (BRP-CAL-001 v0.3, Table 5).
 
 | ID | Requirement | Target | Verification | Status at TRL 3 |
 | --- | --- | --- | --- | --- |
@@ -52,16 +58,15 @@ Table 1. Requirements and status at TRL 3 (BRP-CAL-001 v0.2, Table 5).
 | R9 | Keep clear of what passes under and over the bridge | Nothing more than 15 mm below the girder soffit; nothing on the deck side except the FieldNode on a handrail post, with tamper-resistant fasteners | Model check | Met on paper (10 mm; hub inside the girder outline) |
 | R10 | Survive outdoors | Hub IP67, FieldNode IP65; operate from −20 to +50 °C; 5 years with one gauge recoat and no cell replacement | Datasheets and design review; later environmental checks | At risk: FieldNode heat (FND-CAL-001) and gauge coating life |
 | R11 | Protect privacy | No cameras or microphones; only structural readings leave the device | Design review | Met by design |
-| R12 | Affordable | BridgePulse-specific parts $250 or less, with the complete cost including the FieldNode core stated beside it | Priced BOM (`bom/bom.csv`) | At risk: $248.00 (0.8 % margin); complete $374.00 |
+| R12 | Affordable | BridgePulse-specific parts $250 or less, with the complete cost including the FieldNode core stated beside it | Priced BOM (`bom/bom.csv`) | **Not met:** $252.00, $2.00 over; complete $378.00 |
 | R13 | Present results responsibly | Every output labeled as monitoring data that supports inspection; no pass or fail safety rating anywhere in the system | Review of dashboard and report templates | Met by design intent; not yet implemented |
 
 ## Requirements not met or at risk
 
-No requirement is now shown as not met.
-
+- **R12 (cost) not met:** the parts added to make the design buildable (BRP-DDR-004: two probe glands, foot blocks, jaws, packers, jack block and screws) bring the BridgePulse-specific parts to $252.00 on indicative prices, $2.00 over $250. Raising the budget or taking the savings named in BRP-DDR-002 is a decision for Amish (design decisions register, BRP-DEC-001).
 - **R2 (repeatability) at risk:** on a light footbridge the mass of each walker lowers the first mode by up to 6.3 %. Gating out the time when someone is on the span meets 0.2 % in simulation, but the footfall model is idealized and the method must be checked on recorded data (TRL 4, on hold).
 - **R3 (change detection) not verifiable at TRL 3:** it depends on modeling temperature and any remaining load effect to a daily residual of 0.75 % or less.
-- **R10 and R12 at risk:** FieldNode heat and coating life, and a $2.00 cost margin on indicative prices.
+- **R10 at risk:** FieldNode heat and coating life.
 - **R4 and R8 not verifiable at TRL 3:** gauge drift and fitting time need tests or a trial fit.
 
 ## Assumptions

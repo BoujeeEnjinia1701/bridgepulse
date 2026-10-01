@@ -8,7 +8,7 @@ A vibration and strain monitor for small bridges and footbridges that tracks nat
 
 ![BridgePulse: clamp-on vibration and strain monitor for small bridges, product render](media/render-hero.png)
 
-[Exploded render](media/render-exploded.png) · [Detail render](media/render-detail.png) · [Interactive 3D model](media/viewer.html) · [Concept blueprint (PDF)](media/concept-blueprint.pdf) · [General arrangement BRP-DWG-001 (PDF)](cad/drawings/BRP-DWG-001.pdf) · [Calculations BRP-CAL-001](docs/04-calcs/01-sizing.md) · [Review note](docs/REVIEW.md)
+[Exploded render](media/render-exploded.png) · [Detail render](media/render-detail.png) · [Interactive 3D model](media/viewer.html) · [Concept blueprint (PDF)](media/concept-blueprint.pdf) · [General arrangement BRP-DWG-001 (PDF)](cad/drawings/BRP-DWG-001.pdf) · [Calculations BRP-CAL-001](docs/04-calcs/01-sizing.md) · [Prototype build plan BRP-BLD-001](docs/05-build-plan.md) · [Design decisions BRP-DEC-001](docs/06-design-decisions.md) · [Review note](docs/REVIEW.md)
 
 ## Concept rationale
 
@@ -57,13 +57,13 @@ Many small bridges are inspected rarely, and deterioration is found late. Their 
 
 A vibration and strain monitor for small bridges and footbridges that tracks natural frequency and strain over time to flag changes that need inspection. A sensor hub fixed between the flanges of a girder at midspan records 10 minutes of acceleration, strain and temperature every hour, extracts the natural frequencies and strain statistics on board, and sends about 36 bytes per hour (11 bytes where the radio data rate allows no more) through a FieldNode core over LoRaWAN to TwinKit or CityTwin. A temperature-compensated baseline, learned over weeks, flags lasting changes to the owner's engineer.
 
-The TRL 3 calculations ([BRP-CAL-001](docs/04-calcs/01-sizing.md)) give 16.9 mW average draw, 0.0153 Hz spectral resolution per record, 1.39 GB of raw records per month kept on site, and $248 of BridgePulse-specific parts ($374 with the FieldNode core, which is costed in its own repo). On the 7 m example footbridge the first mode is 23.9 Hz and the instrument can track it to about 0.05 % an hour, but the mass of people crossing lowers it by up to 6 %. The hub therefore gates out the time when someone is on the span; in simulation that brings the hourly scatter to 0.015 % or less, inside the 0.2 % target, which remains at risk until recorded data confirm it. The 1 % change detection cannot be verified on paper. See the [requirements](docs/03-requirements.md) for what is and is not met.
+The TRL 3 calculations ([BRP-CAL-001](docs/04-calcs/01-sizing.md)) give 16.9 mW average draw, 0.0153 Hz spectral resolution per record, 1.39 GB of raw records per month kept on site, and $252 of BridgePulse-specific parts ($378 with the FieldNode core, which is costed in its own repo), $2 over the $250 budget since the parts that make the design buildable were added; that is open for Amish's decision. On the 7 m example footbridge the first mode is 23.9 Hz and the instrument can track it to about 0.05 % an hour, but the mass of people crossing lowers it by up to 6 %. The hub therefore gates out the time when someone is on the span; in simulation that brings the hourly scatter to 0.015 % or less, inside the 0.2 % target, which remains at risk until recorded data confirm it. The 1 % change detection cannot be verified on paper. See the [requirements](docs/03-requirements.md) for what is and is not met.
 
 Full design precis: [docs/02-concept.md](docs/02-concept.md)
 
 ## Key components
 
-- Sensor hub: IP67 die-cast aluminium enclosure on an aluminium plate jacked between the girder flanges, no drilling
+- Sensor hub: IP67 die-cast aluminium enclosure on an aluminium plate that lies on the girder web, clamped to the bottom flange and jacked against the top flange, no drilling
 - Low-noise 3-axis MEMS accelerometer (ADXL355 class)
 - Signal board with 24-bit bridge ADC, RP2040 class microcontroller, RS-485 link and industrial microSD card
 - Two strain gauge half-bridges with temperature-compensating dummy gauges
@@ -72,6 +72,12 @@ Full design precis: [docs/02-concept.md](docs/02-concept.md)
 - FieldNode core (shared lab component): 6 W panel, LiFePO4 cell, MPPT charger and LoRaWAN radio
 
 The working bill of materials is in [bom/bom.csv](bom/bom.csv).
+
+## Building the prototype
+
+![BridgePulse prototype: every component, pulled apart and numbered in build order](docs/05-build-plan/overview.png)
+
+The [prototype build plan](docs/05-build-plan.md) (BRP-BLD-001) shows, component by component and step by step in pictures drawn from the model, how to build the first proof-of-concept monitor on a bench rig of two girder offcuts and a handrail post stub. Seven parts are made in a small workshop from aluminium and steel bar and plate; the rest are bought, and the FieldNode core is built to its own plan. Making the design buildable kept the plate clear of the girder's root fillets, clamped it to the flange with foot blocks and steel jaws, and gave every sensor and cable a fixing that needs no drilling (BRP-DDR-004). It is a plan, not yet built; decisions still open are in the [design decisions register](docs/06-design-decisions.md).
 
 ## Safety
 
