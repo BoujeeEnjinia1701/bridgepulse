@@ -3,9 +3,9 @@ doc_id: BRP-REQ-001
 title: BridgePulse requirements
 project: BridgePulse
 doc_type: Requirements
-version: "0.6"
+version: "0.7"
 status: Draft
-date: '2026-10-01'
+date: '2026-10-02'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -33,6 +33,10 @@ revisions:
   date: '2026-10-01'
   author: Amish Chadha
   change: Budget treated as a value-engineering target; R12 status reworded, no number changed
+- version: "0.7"
+  date: '2026-10-02'
+  author: Amish Chadha
+  change: "R9 states the tamper-resistant fixing chosen on 2026-10-02 (crimped stainless banding); FieldNode pinout recorded as decided; no status changed"
 ---
 
 # BridgePulse requirements
@@ -59,7 +63,7 @@ Table 1. Requirements and status at TRL 3 (BRP-CAL-001 v0.3, Table 5).
 | R6 | Stay within the FieldNode energy budget | Average draw 30 mW or less at the FieldNode sensor port | Power calculation; later current logging | Met on paper (16.9 mW) |
 | R7 | Send and keep the data | One summary per hour of 48 bytes or less, within LoRaWAN regional limits at the data rate in use, with an 11-byte reduced summary (first frequency, its amplitude, two strain means, steel temperature, status) wherever the limit is 11 bytes; raw records kept on site for 12 months or more | Payload and airtime calculation; storage calculation | Met on paper: 36 bytes, or 11 bytes at US915 DR0 and AS923 DR2 (AS923 limit assumed); 22 months on 32 GB |
 | R8 | Fit without harming the structure | No drilling, welding or cutting; strain gauges only on an area of paint removed and recoated with the owner's permission; fitted by two trained people in 4 h or less from below or beside the deck | Fitting sequence estimate; later trial fit | Not verifiable at TRL 3 for time (2.8 h estimate); no drilling or welding met by design |
-| R9 | Keep clear of what passes under and over the bridge | Nothing more than 15 mm below the girder soffit; nothing on the deck side except the FieldNode on a handrail post, with tamper-resistant fasteners | Model check | Met on paper (10 mm; hub inside the girder outline) |
+| R9 | Keep clear of what passes under and over the bridge | Nothing more than 15 mm below the girder soffit; nothing on the deck side except the FieldNode on a handrail post, with tamper-resistant fasteners (one-way crimped stainless banding on installed units) | Model check | Met on paper (10 mm; hub inside the girder outline) |
 | R10 | Survive outdoors | Hub IP67, FieldNode IP65; operate from −20 to +50 °C; 5 years with one gauge recoat and no cell replacement | Datasheets and design review; later environmental checks | At risk: FieldNode heat (FND-CAL-001) and gauge coating life |
 | R11 | Protect privacy | No cameras or microphones; only structural readings leave the device | Design review | Met by design |
 | R12 | Affordable | BridgePulse-specific parts within the $250 value-engineering target (a hypothetical control target), with the complete cost including the FieldNode core stated beside it | Priced BOM (`bom/bom.csv`) | **Over the value-engineering target by $2.00:** $252.00 estimated; complete $378.00 |
@@ -76,6 +80,6 @@ Table 1. Requirements and status at TRL 3 (BRP-CAL-001 v0.3, Table 5).
 ## Assumptions
 
 - The accelerometer follows the ADXL355 datasheet summary ([Analog Devices](https://www.analog.com/en/products/adxl355.html)); a different part must meet R1.
-- The FieldNode core offers 100 mW average for sensors as its design value (115 mW ceiling, FND-CAL-001) and two sealed M12 5-pin ports with a switched rail. BridgePulse assumes RS-485 and a 5 V rail on FieldNode's candidate pinout, which is still open (BRP-DDR-001, O1).
+- The FieldNode core offers 100 mW average for sensors as its design value (115 mW ceiling, FND-CAL-001) and two sealed M12 5-pin ports with a switched rail. BridgePulse uses RS-485 (Modbus RTU) and a 5 V rail on FieldNode's candidate pinout, adopted as the shared standard on 2026-10-02 (BRP-DEC-001).
 - A temperature-compensated frequency baseline needs at least four weeks of data before any flag, following the approach of [Peeters and De Roeck (2001)](https://doi.org/10.1002/1096-9845%28200102%2930:2%3C149::AID-EQE1%3E3.0.CO;2-Z).
 - Steel modulus 210 GPa for converting strain to stress. The other calculation assumptions are in BRP-CAL-001, Table 1.

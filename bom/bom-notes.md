@@ -17,3 +17,5 @@ Changes from TRL 2 ($216 BridgePulse-specific, $342 complete): the mounting plat
 The bridge itself, installation labor, access equipment, traffic management, paint testing and consumables for surface preparation are not included.
 
 Change under BRP-DDR-004 (design for construction, 2026-09-30): item 1 adds two M12 probe glands and the base fixing (+$2.00, now $22.00); item 4 becomes the plate with two foot blocks, two steel jaws, two packers, a jack block and their screws (+$2.00, now $40.00); items 2, 5, 6, 7 and 8 have their fixing spelled out (spacers, coupon on silicone, probe flange clip, push-on flange clips, FieldNode V-blocks left off and longer bands) at no change in price.
+
+Decisions of 2026-10-02 (BRP-DEC-001): line 4 is to gain a second, independent bought girder clamp with a stated load rating for the lanyard anchor, fitted on the bottom flange at least 150 mm along the span from the foot clamps, with a stainless wire lanyard; it is not yet in the quantities or the price. Installed units hold the FieldNode with stainless banding and one-way crimped buckles; the worm-drive bands of line 8 are for the bench unit.

@@ -3,9 +3,9 @@ doc_id: BRP-DDR-004
 title: BridgePulse design for construction
 project: BridgePulse
 doc_type: Design decision record
-version: "0.2"
+version: "0.3"
 status: Draft
-date: '2026-10-01'
+date: '2026-10-02'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -17,12 +17,16 @@ revisions:
   date: '2026-10-01'
   author: Amish Chadha
   change: Budget treated as a value-engineering target; R12 wording only, no number changed
+- version: "0.3"
+  date: '2026-10-02'
+  author: Amish Chadha
+  change: "Accepted by Amish on 2026-10-02, with P12 subject to FieldNode confirming the square-post mount; A2 to A5 decided as recommended"
 ---
 
 # 0004: Design for construction
 
 - **Date:** 2026-09-30
-- **Status:** Draft. Every change in Table 1 was made under Amish's 2026-09-30 instruction to make the design physically buildable; open for his review. The items in Table 3 are "Proposed, awaiting Amish" and are carried in the design decisions register (BRP-DEC-001).
+- **Status:** accepted. Amish, 2026-10-02: "i approve your recommendations for all 555 open decisions." This covers every change in Tables 1 and 2, with P12 (FieldNode on the square post without V-blocks) subject to the FieldNode project confirming that mount, and the recommendations for A2 to A5 in Table 3, which are now decided as recommended and recorded in the design decisions register (BRP-DEC-001). A1 is a value-engineering saving and stays in the register's value engineering section.
 
 ## Context
 
@@ -61,15 +65,15 @@ The changes below keep what the monitor does: the same hub, boards, sensors, pos
 | Documents | BRP-CAL-001 v0.3, BRP-REQ-001 v0.5, BRP-PRC-001 v0.5, `bom/bom.csv`, `bom/bom-notes.md`. Requirement count: 1 over the value-engineering target (R12), 2 at risk (R2, R10), 3 not verifiable at TRL 3, 4 met on paper, 3 met by design. | Follows the model. |
 | Appearance model | `cad/src/product_model.py` and the photoreal renders still show the concept plate, tab, clamps, probe boss and glands; they need updating on Amish's Mac, where Blender is. | Renders are made there. |
 
-*Table 3. Proposed, awaiting Amish.*
+*Table 3. Proposed; A2 to A5 accepted by Amish as recommended on 2026-10-02 (A5 with P12 subject to FieldNode). A1 stays a value-engineering saving.*
 
 | # | Question | Options | Recommendation |
 | --- | --- | --- | --- |
 | A1 | R12: the estimated cost is $2.00 over the $250 value-engineering target on indicative prices. | Savings worth trying: (a) take the first saving already named in BRP-DDR-002, a consumer high-endurance microSD card rated -25 to +85 °C, in place of the industrial card; (b) a cheaper accelerometer breakout that still meets R1; (c) leave it until quotes at TRL 4. | (a), if the chosen card's datasheet covers -25 to +85 °C, since it keeps R10 and saves about $10. |
-| A2 | The lanyard (the safety case's second retention path) has a hole in the plate but no anchor on the bridge: nothing may be drilled, the deck sits on the top flange and a loop cannot pass round a flange. | (a) a second, independent bought beam clamp on the bottom flange at least 150 mm along the span, with the lanyard to it; (b) to the handrail post; (c) to a cross frame or diaphragm where the bridge has one. | (a): independent of the foot clamps and the same on every bridge; it would add a bought clamp to BOM line 4. |
-| A3 | R9 asks for tamper-resistant fasteners on the post-mounted FieldNode; worm-drive band clamps undo with a screwdriver. | (a) stainless banding with a one-way crimped buckle for installations, worm-drive bands on the bench; (b) worm-drive bands with tamper-resistant screws; (c) a lockable cover. | (a). FieldNode should decide it for all its post installations. |
-| A4 | Where the far gauge cable crosses between the girders it needs support; the example bridge has no cross member in the model, and fixings into the deck count as drilling. | (a) run it along the nearest cross frame or diaphragm; (b) a tensioned 3 mm stainless catenary wire between two flange clamps; (c) decide at the site survey with the owner. | (c), preferring (a) wherever the bridge has a cross member near midspan. Depends on the first host bridge (BRP-DDR-001, O2). |
-| A5 | Accept the changes of Table 1. | (a) accept; (b) accept with changes. | (a). |
+| A2 | The lanyard (the safety case's second retention path) has a hole in the plate but no anchor on the bridge: nothing may be drilled, the deck sits on the top flange and a loop cannot pass round a flange. | (a) a second, independent bought beam clamp on the bottom flange at least 150 mm along the span, with the lanyard to it; (b) to the handrail post; (c) to a cross frame or diaphragm where the bridge has one. | (a): independent of the foot clamps and the same on every bridge; it would add a bought clamp to BOM line 4. Accepted 2026-10-02: a load-rated girder clamp at least 150 mm along the span from the foot clamps, with a stainless wire lanyard. |
+| A3 | R9 asks for tamper-resistant fasteners on the post-mounted FieldNode; worm-drive band clamps undo with a screwdriver. | (a) stainless banding with a one-way crimped buckle for installations, worm-drive bands on the bench; (b) worm-drive bands with tamper-resistant screws; (c) a lockable cover. | (a). FieldNode should decide it for all its post installations. Accepted 2026-10-02; FieldNode is asked to adopt the same rule. |
+| A4 | Where the far gauge cable crosses between the girders it needs support; the example bridge has no cross member in the model, and fixings into the deck count as drilling. | (a) run it along the nearest cross frame or diaphragm; (b) a tensioned 3 mm stainless catenary wire between two flange clamps; (c) decide at the site survey with the owner. | (c), preferring (a) wherever the bridge has a cross member near midspan, otherwise (b). Depends on the first host bridge (BRP-DDR-001, O2). Accepted 2026-10-02. |
+| A5 | Accept the changes of Table 1. | (a) accept; (b) accept with changes. | (a), with P12 subject to the FieldNode project confirming the square-post mount. Accepted 2026-10-02. |
 
 ## Consequences
 
@@ -77,4 +81,5 @@ The changes below keep what the monitor does: the same hub, boards, sensors, pos
 - R12 moves from at risk to over the value-engineering target ($2.00 over); every other requirement keeps its status.
 - The photoreal renders (`media/render-*.png`), `media/card.png`, `media/social-preview.png` and the appearance model `cad/src/product_model.py` still show the concept mount and need updating on Amish's Mac.
 - The FieldNode project is asked to confirm the square-post interface (no V-blocks, longer bands) and its own current mass and cost; nothing in the FieldNode repo is changed here.
+- With A2 accepted, the lanyard goes to a second, independent load-rated girder clamp on the bottom flange; the clamp is still to be added to BOM line 4, the model and the build plan pictures. With A3 accepted, installed units use one-way crimped stainless banding and the bench unit worm-drive bands. With A4 accepted, the far cable's support is chosen at the site survey.
 - TRL stays at 3; TRL 4 remains on hold. Nothing in this record authorizes building, testing or buying.

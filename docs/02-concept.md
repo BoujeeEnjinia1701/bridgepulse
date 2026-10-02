@@ -3,9 +3,9 @@ doc_id: BRP-PRC-001
 title: BridgePulse design precis
 project: BridgePulse
 doc_type: Design precis
-version: "0.6"
+version: "0.7"
 status: Draft
-date: '2026-10-01'
+date: '2026-10-02'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -33,6 +33,10 @@ revisions:
   date: '2026-10-01'
   author: Amish Chadha
   change: Budget treated as a value-engineering target; cost wording only, no number changed
+- version: "0.7"
+  date: '2026-10-02'
+  author: Amish Chadha
+  change: "Decisions of 2026-10-02 carried in: shared FieldNode pinout with Modbus RTU, lanyard to an independent girder clamp, crimped banding on installed units, data ownership"
 ---
 
 # BridgePulse design precis
@@ -128,7 +132,7 @@ Each is decided by Amish, 2026-09-25: go with recommendation (BRP-DDR-001, BRP-D
 4. **Temperature-compensated trend, not fixed limits.** A frequency band learned from the bridge's own baseline, with at least four weeks of data before any flag and a full year to cover seasons. BRP-CAL-001 shows it must model load on the deck as well as temperature.
 5. **Foil gauge half-bridges with a dummy on a coupon.** Cheaper and easier to fit than weldable or vibrating-wire gauges, at the cost of long-term drift, to be checked early.
 6. **One accelerometer at midspan.** Enough for the first vertical and torsional modes.
-7. **Built on FieldNode, TwinKit and CityTwin.** The hub connects to one FieldNode M12 5-pin port, using its switched rail at 5 V and RS-485 on two signal pins. This follows FieldNode's candidate pinout; the pinout itself is still open (BRP-DDR-001, O1).
+7. **Built on FieldNode, TwinKit and CityTwin.** The hub connects to one FieldNode M12 5-pin port, using its switched rail at 5 V and RS-485 on two signal pins. This follows FieldNode's candidate pinout, adopted on 2026-10-02 as the shared standard with Modbus RTU as the protocol (pin 1 switched 5 V rail, pins 2 and 4 RS-485 A and B, pin 3 ground, pin 5 analog); FieldNode is asked to record it as decided (BRP-DEC-001).
 8. **Engineer-only alerts.** Flags go to the owner's engineer; the public CityTwin view shows only monitoring status.
 9. **An RP2040 class microcontroller in the hub,** which post-processes each record from the card because the three axes do not fit in its RAM at once.
 10. **Load gating, backed by a load regression.** The hub gates out the time when people are on the span; TwinKit regresses what remains on a load indicator. R2 stays at 0.2 % until recorded data show whether this works (BRP-DDR-002).
@@ -145,16 +149,16 @@ Each is decided by Amish, 2026-09-25: go with recommendation (BRP-DDR-001, BRP-D
 
 > **Safety:** The FieldNode core contains a lithium iron phosphate cell. Use the fused, protected pack and cold-charge lockout specified by FieldNode and never mount a damaged pack.
 
-> **Safety:** Nothing may be drilled, welded or cut into the structure. The jack screw preload and the clamps must be checked so they cannot loosen and fall onto people, vehicles or boats below; use a secondary lanyard on the hub. Isolate the aluminium plate from the steel so galvanic corrosion cannot loosen it over time.
+> **Safety:** Nothing may be drilled, welded or cut into the structure. The jack screw preload and the clamps must be checked so they cannot loosen and fall onto people, vehicles or boats below; use a secondary lanyard from the hub to a second, independent load-rated girder clamp on the bottom flange, at least 150 mm along the span from the foot clamps. Isolate the aluminium plate from the steel so galvanic corrosion cannot loosen it over time.
 
-> **Safety:** Fit tamper-resistant fasteners on the post-mounted FieldNode so the public cannot pull it off or hang from it, and keep cables out of reach from the deck.
+> **Safety:** Fit tamper-resistant fasteners on the post-mounted FieldNode so the public cannot pull it off or hang from it: stainless banding with a one-way crimped buckle on installed units (worm-drive bands only on the bench). Keep cables out of reach from the deck.
 
 ## Open questions
 
 - [ ] 1. Does load gating hold on recorded footfall, with real walkers, several modes and wind, as it does in simulation? (BRP-CAL-001, B; TRL 4, on hold)
 - [ ] 2. How much do frequencies move with temperature on small steel, concrete and timber bridges, and can a model trained on four weeks of data hold across seasons to a daily residual of 0.75 %?
 - [ ] 3. What drift do foil strain gauges show outdoors over a year with the proposed coating?
-- [ ] 4. Which FieldNode port pinout and protocol will be agreed (BRP-DDR-001, O1)?
+- [x] 4. Which FieldNode port pinout and protocol will be agreed (BRP-DDR-001, O1)? Decided 2026-10-02: FieldNode's candidate pinout with Modbus RTU over RS-485, as the shared standard.
 - [ ] 5. What is the alert rule (size of shift, duration) and who receives it?
 - [ ] 6. Does the potted TMP1826 class probe hold its datasheet accuracy after sealing, at the ice point and in CalRig? (TRL 4, on hold)
-- [ ] 7. Who owns the data, and what is published openly through CityTwin (BRP-DDR-001, O3)?
+- [x] 7. Who owns the data, and what is published openly through CityTwin (BRP-DDR-001, O3)? Decided 2026-10-02: the bridge owner owns all data; only monitoring status is published, and research datasets only with the owner's written consent, under an open licence such as CC BY 4.0.

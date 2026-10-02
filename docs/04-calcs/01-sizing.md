@@ -3,9 +3,9 @@ doc_id: BRP-CAL-001
 title: BridgePulse sizing calculations
 project: BridgePulse
 doc_type: Calculation
-version: "0.4"
+version: "0.5"
 status: Draft
-date: '2026-10-01'
+date: '2026-10-02'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -25,6 +25,10 @@ revisions:
   date: '2026-10-01'
   author: Amish Chadha
   change: Budget treated as a value-engineering target; R12 wording only, no number changed
+- version: "0.5"
+  date: '2026-10-02'
+  author: Amish Chadha
+  change: "Lanyard anchor recorded as decided on 2026-10-02 (independent girder clamp); text only, no number changed"
 ---
 
 # BridgePulse sizing calculations
@@ -155,7 +159,7 @@ The design case is the example bridge of BRP-PRC-001: a 7 m steel footbridge, 6.
 
 - **Mass.** The hub weighs 0.99 kg, the plate 1.25 kg and the foot blocks, jaws, packers, jack block, jack screw and fixings 0.97 kg (0.47 kg of it aluminium): 3.21 kg on the girder [H1]. Version 0.2 gave 3.34 kg, counting the clamp parts as steel; the hub is now heavier because it has two more glands. The TRL 2 figure of 0.6 kg for hub and clamps was far too low. The FieldNode core weighs 2.41 kg by its own calculation, not the 1.7 kg quoted at TRL 2.
 - **Stiffness of the mount.** The accelerometer must move with the girder up to 60 Hz, so the hub's own mounting resonance should be above about 120 Hz. The plate, 200 × 291 × 8 mm aluminium, lies against the web and stands on two foot blocks clamped to the bottom flange; an M12 jack screw wedges it against the top flange. With the hub 155 mm above its foot it resonates out of plane between 135 Hz (ends pinned) and 271 Hz (ends fixed) [H2] (version 0.2, with a 313 mm plate standing directly on the flange: 126 to 253 Hz). The TRL 2 arrangement, a plate clamped only to the bottom flange with the hub 190 mm up, would resonate at about 77 Hz [H3], close enough to the band to distort it. This is the main design change of this note.
-- **Retention.** Each foot block is clamped to the bottom flange by a steel jaw under the flange, a packer outside the tip and an M10 bolt, and the jack screw bears on the top flange; the lanyard is a second path, its anchor still to be chosen (BRP-DEC-001) [H4]. Aluminium on painted steel needs isolating washers; the plate and foot blocks are hard anodized.
+- **Retention.** Each foot block is clamped to the bottom flange by a steel jaw under the flange, a packer outside the tip and an M10 bolt, and the jack screw bears on the top flange; the lanyard is a second path, anchored to a second, independent load-rated girder clamp on the bottom flange at least 150 mm along the span (decided 2026-10-02, BRP-DEC-001; not yet in the model or the mass) [H4]. Aluminium on painted steel needs isolating washers; the plate and foot blocks are hard anodized.
 - **Root fillets.** A rolled IPE 360 has 18 mm root fillets between web and flanges, which the version 0.2 plate would have stood on. The plate now ends 22 mm from each flange, and each foot block has a 12 mm chamfer over the fillet; the model checks both [H4b].
 - **Clearance (R9).** Below the soffit there are only the clamp jaws (10 mm, with the bolts ending inside them), the gauge covers (6 mm), the probe lead and clips (8 mm) and the cables that wrap the south flange (10 mm), against the 15 mm limit [H5]. The hub sits 9 mm inside the flange tip line, inside the girder outline [H6]. **R9 is met on paper.**
 - **FieldNode on the post.** A 35 m/s gust puts 52.2 N on the panel and 29 N on the enclosure, a 60 N·m moment and 7.2 MPa in a 50 × 3 mm post, about a twentieth of what a 1 kN load at the rail top would cause [H7]. FieldNode's V-blocks are designed for round poles and would bear on a square post's corners. On the 50 mm square post they are left off: the back plate bears on the post's flat face, and two band clamps one size longer go round the post and through the plate's slots [H8] (BRP-DDR-004). Nothing in the FieldNode repo is changed here; FieldNode is asked to confirm the interface (BRP-DEC-001).

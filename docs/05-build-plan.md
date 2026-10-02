@@ -3,9 +3,9 @@ doc_id: BRP-BLD-001
 title: BridgePulse prototype build plan
 project: BridgePulse
 doc_type: Build plan
-version: "0.2"
+version: "0.3"
 status: Draft
-date: '2026-10-01'
+date: '2026-10-02'
 author: Amish Chadha
 license: CERN-OHL-S-2.0
 revisions:
@@ -17,6 +17,10 @@ revisions:
     date: '2026-10-01'
     author: Amish Chadha
     change: Budget treated as a value-engineering target; cost line reworded
+  - version: "0.3"
+    date: '2026-10-02'
+    author: Amish Chadha
+    change: "Decisions of 2026-10-02: wiring follows the adopted FieldNode pinout; safety stop S8 names the lanyard's girder clamp and crimped banding. Pictures unchanged"
 ---
 
 # BridgePulse prototype build plan
@@ -219,7 +223,7 @@ Wire it like this, with stranded copper and a ferrule on every screw terminal:
 
 1. Panel connector, switched 5 V rail and ground, to the buck converter's input: 0.5 mm² (20 AWG).
 2. Buck converter's 3.3 V output to the controller, the ADC module, the RS-485 module and the accelerometer board: 0.5 mm².
-3. Panel connector's two RS-485 pins to the RS-485 module's A and B: 0.25 mm² (24 AWG), twisted. The pin assignment follows the FieldNode candidate pinout, which is still being agreed (design decisions register).
+3. Panel connector's two RS-485 pins to the RS-485 module's A and B: 0.25 mm² (24 AWG), twisted. The pin assignment follows the FieldNode pinout adopted as the shared standard (pin 1 switched 5 V rail, pins 2 and 4 RS-485 A and B, pin 3 ground, pin 5 analog; Modbus RTU).
 4. Controller to the RS-485 module (UART), to the ADC module and to the accelerometer board (SPI): short 0.25 mm² leads.
 5. Controller output to the excitation switch's enable input: 0.25 mm².
 6. Each gauge cable at the terminal block: excitation pair from the excitation switch, signal pair to the ADC module through the completion resistors, shield to ground at the hub end only.
@@ -428,7 +432,7 @@ Stop at each point. Carry on only when everything listed is true.
 - **S5. Before the hub is first powered.** The bench supply is set to 5 V with a 200 mA current limit; the panel connector's pin assignment is checked against the wiring with a meter, not by wire colour.
 - **S6. Before the FieldNode core's cell is fitted.** Its own plan's safety stops are passed (FND-BLD-001).
 - **S7. Before the rig is left unattended.** The jack lock nut and both clamp bolts are tight and their torques recorded; no cable is under strain.
-- **S8. Before any installation on a bridge (outside this plan).** The owner's written permission; a trained crew of at least two; fall protection and a rescue plan for work over water; traffic management where needed; the lanyard fitted to its anchor; tamper-resistant fixings on the FieldNode. Never work alone.
+- **S8. Before any installation on a bridge (outside this plan).** The owner's written permission; a trained crew of at least two; fall protection and a rescue plan for work over water; traffic management where needed; the lanyard fitted to its anchor, a second load-rated girder clamp on the bottom flange at least 150 mm along the span from the foot clamps; the FieldNode's bands replaced by stainless banding with one-way crimped buckles. Never work alone.
 
 ## 7. Tools, skills and workspace
 

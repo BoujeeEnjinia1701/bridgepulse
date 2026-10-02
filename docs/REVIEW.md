@@ -325,3 +325,39 @@ The photoreal renders (`media/render-*.png`), `media/card.png`, `media/social-pr
 ### Recommended next step
 
 Amish reviews BRP-DDR-004 and the register. TRL stays at 3; TRL 4 remains on hold.
+
+## Session 2026-10-02: open decisions decided
+
+On 2026-10-02 Amish approved the recommendations for every open decision: "i approve your recommendations for all 555 open decisions." The 11 open decisions of the design decisions register are now in its Decisions made table, dated 2026-10-02.
+
+BRP-DDR-004 (design for construction) is accepted, with P12 subject to the FieldNode project confirming the square-post mount; A2 to A5 are decided as recommended, and A1 stays a value-engineering saving. Review flag 2 below concerns items 4 and 5 of the 2026-09-26 review, which BRP-DDR-004 resolved in the constructable model (P7 and the new cable routes).
+
+### Documents changed
+
+- `docs/06-design-decisions.md` (BRP-DEC-001 v0.3)
+- `docs/decisions/0004-design-for-construction.md` (BRP-DDR-004 v0.3)
+- `docs/02-concept.md` (BRP-PRC-001 v0.7)
+- `docs/03-requirements.md` (BRP-REQ-001 v0.7)
+- `docs/04-calcs/01-sizing.md` (BRP-CAL-001 v0.5)
+- `docs/05-build-plan.md` (BRP-BLD-001 v0.3)
+- `bom/bom-notes.md` (not a controlled document)
+
+### Follow-up actions to carry approved decisions into the design
+
+1. Decision 1: Ask the FieldNode project to confirm the square-post mount without V-blocks and the longer bands (P12); until it does, P12 stays conditional.
+2. Decision 2: Model: add the second, independent girder clamp on the bottom flange at least 150 mm along the span from the foot clamps, with the lanyard run to it, and add its constructability checks.
+3. Decision 2: Drawings: show the lanyard clamp on BRP-DWG-001 and the relevant making sketch.
+4. Decision 2: Build plan pictures: show the lanyard clamp and lanyard in the installation and fixings figures.
+5. Decision 2: BOM: add the load-rated girder clamp and stainless wire lanyard to line 4 with quantity and price.
+6. Decision 2: Calculations: add the clamp to the mass on the girder (BRP-CAL-001, H1) and the cost (K), and state its required load rating against the hub's mass with a dynamic factor (H4).
+7. Decision 3: BOM: add stainless banding with one-way crimped buckles for installed units (the bench unit keeps the worm-drive bands of line 8), and ask FieldNode to adopt the rule for all post installations.
+8. Decision 5: Ask the FieldNode project to record its candidate pinout and Modbus RTU as decided for every adopting project; write the firmware's Modbus RTU register map when firmware starts.
+9. Decision 11: Appearance model and renders: when the renders are next updated on Amish's Mac, make `cad/src/product_model.py` follow the cable routes of `cad/src/model.py`.
+
+### Points found in the review
+
+1. Item 11 is already decided by BRP-DDR-004 (P10 and P11) and should move out of the open table.
+2. REVIEW 2026-09-26 items 4 (cable passing through the flange) and 5 (probe sheath) were resolved by BRP-DDR-004 (P7 and the new routes) but are not marked closed.
+3. The FieldNode candidate pinout is described in FieldNode's own records as 'for discussion only'; both repos are waiting on each other, so the decision needs to be made once, in FieldNode.
+
+No CAD model, BOM quantity or price, calculation result or picture was changed. TRL stays at 3; TRL 4 remains on hold.
