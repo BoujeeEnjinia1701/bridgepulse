@@ -71,7 +71,7 @@ outs = render_all(
                  "10 min record each hour at 250 Hz; 16.9 mW average at the port (BRP-CAL-001)",
                  "Example 7 m span: first mode 23.9 Hz; walkers gated out, 0.015 % scatter (sim.)",
                  "Hub between the flanges; 10 mm below the soffit at most; no drilling",
-                 "$248 BridgePulse-specific parts; $374 with the FieldNode core"],
+                 "$275 BridgePulse-specific parts; $401 with the FieldNode core; wire lanyard to its own clamp"],
     scale_figure=False, context=context, cut=False,
     flow={"title": "hourly data flow (estimates)", "unit": "GB/month",
           "stages": [("Bridge response", "accel, strain, temp"), ("Sensor hub", "10 min each hour"),
@@ -84,7 +84,11 @@ outs = render_all(
 # girder segment behind it. The kit's own cutaway cuts at the mean Y of all parts, which would miss
 # the hub, so this view is made here.
 hub_y = (D["hub_y0"] + D["hub_y1"]) / 2
-hub_parts = [p for p in parts if p.bom in (1, 2, 3, 4)] + [
+from model import build_components, fuse  # noqa: E402
+_C = build_components(P)
+_LAN = ("pad_eye", "pad_eye_screws", "lanyard", "lan_clamp", "lan_screw")   # off the cut, shown in the hero and exploded views
+hub_parts = [p for p in parts if p.bom in (1, 2, 3)] + [
+    Part(BOM_NAMES["mount"][1], fuse(c.shape for k, c in _C.items() if c.group == "mount" and k not in _LAN), COL["mount"], 4)] + [
     Part("Girder web and flanges (existing)", i_girder(P, -P["gy"], -180, 180), STEEL, None)]
 cutter = Pos(0, hub_y + 5000, 0) * Box(10000, 10000, 10000)
 cut = []

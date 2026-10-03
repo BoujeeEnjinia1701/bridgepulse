@@ -3,7 +3,7 @@ doc_id: BRP-DEC-001
 title: BridgePulse design decisions register
 project: BridgePulse
 doc_type: Design decisions register
-version: "0.3"
+version: "0.4"
 status: Draft
 date: '2026-10-02'
 author: Amish Chadha
@@ -21,6 +21,10 @@ revisions:
   date: '2026-10-02'
   author: Amish Chadha
   change: "Amish approved the recommendations for all open decisions 1 to 11 on 2026-10-02 (BRP-DDR-004 accepted, P12 subject to FieldNode); moved to decisions made"
+- version: "0.4"
+  date: '2026-10-02'
+  author: Amish Chadha
+  change: "Approved follow-ups carried out: lanyard clamp and installation banding priced; value engineering restated (USD 275.00, USD 25.00 over the target); girder clamp rating added to the items to confirm"
 ---
 
 # BridgePulse design decisions register
@@ -42,16 +46,17 @@ None. All open decisions were decided on 2026-10-02.
 | 5 | The FieldNode band clamp length (about 300 to 330 mm round the 50 mm square post) and that the FieldNode project accepts mounting without V-blocks | The bands must close with adjustment to spare; the interface is FieldNode's, and P12 was accepted on 2026-10-02 subject to this confirmation | BRP-DDR-004, P12; BRP-CAL-001, H8 |
 | 6 | The FieldNode core's current cost and mass ($126.00 and 2.41 kg are copied from FND-CAL-001) | FieldNode's own build plan may have changed them; they feed the complete-monitor cost and the post load | BRP-CAL-001, H1 and K |
 | 7 | The RP2040 class board's rated temperature range (assumed -20 to +85 °C) and the ADC noise figure (assumed) | They underpin R10 and R4 | BRP-CAL-001, D and J |
+| 8 | The girder clamp's working load limit (100 kg or more), the lanyard's breaking load (about 4.8 kN assumed for 3 mm 7 x 7 stainless) and the flange thickness range of the clamp | They set the margin on the 1.20 kN peak if the mount lets go; the lanyard must be fitted with 25 mm of slack or less | BRP-CAL-001, H4a and H4c |
 
 ## Value engineering
 
-Value-engineering target: USD 250.00 (a hypothetical control target, not a limit). Estimated cost of the constructable design: USD 252.00 (USD 2.00 over the target). The target covers the BridgePulse-specific parts (BRP-DDR-001, D1); the complete monitor with the FieldNode core is USD 378.00.
+Value-engineering target: USD 250.00. Estimated cost of the constructable design: USD 275.00 (USD 25.00 over the target). The target is a hypothetical control target, not a limit, and covers the BridgePulse-specific parts (BRP-DDR-001, D1); the complete monitor with the FieldNode core is USD 401.00.
 
-Main cost drivers (BRP-CAL-001, K): the industrial microSD card ($20.00), the mounting plate, foot blocks, jaws, packers and jack block (line 4, $40.00), the strain gauge half-bridges, and the TMP1826 class probes ($6.00 each). The parts added for construction (BRP-DDR-004) account for $4.00 of the estimate. The second girder clamp for the lanyard anchor (decided 2026-10-02) is not yet priced in BOM line 4 and will add to the estimate.
+Main cost drivers (BRP-CAL-001, K): the mounting plate, foot blocks, jaws, packers, jack block and lanyard anchor (line 4, $59.00), the industrial microSD card ($20.00), the strain gauge half-bridges, and the TMP1826 class probes ($6.00 each). The parts added for construction (BRP-DDR-004) account for $4.00 of the estimate, the lanyard anchor decided on 2026-10-02 (girder clamp, pad eye and made-up wire lanyard) $19.00 and the stainless banding for installed units (line 10) $4.00.
 
 Savings worth trying:
 
-- A consumer high-endurance microSD card rated -25 to +85 °C in place of the industrial card, saving about $10, if its datasheet covers the range (BRP-DDR-004, A1).
+- A consumer high-endurance microSD card rated -25 to +85 °C in place of the industrial card, saving about $10, if its datasheet covers the range (BRP-DDR-004, A1). On its own it no longer closes the gap.
 - A cheaper accelerometer breakout that still meets R1 (BRP-DDR-002).
 - Quotes at TRL 4, which may move the indicative prices either way.
 

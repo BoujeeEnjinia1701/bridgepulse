@@ -1,4 +1,4 @@
-"""BridgePulse general arrangement sheet BRP-DWG-001, Rev P5 (TRL 3).
+"""BridgePulse general arrangement sheet BRP-DWG-001, Rev P6 (TRL 3).
 
 Run from the repo root:  python cad/src/sheets.py
 Writes cad/drawings/BRP-DWG-001.svg, .pdf and .png from the parametric model in cad/src/model.py
@@ -13,7 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT / ".kit"), str(ROOT / "cad" / "src")]
 from drawing import Sheet, _viewbox, _t, M, TB_Y, INK, MUTED  # noqa: E402
-from model import PARAMS as P, derived, installed, hub_group, i_girder  # noqa: E402
+from model import PARAMS as P, derived, installed, hub_group, i_girder, lanyard_geometry  # noqa: E402
 
 DATE = "2026-09-25"
 DATE_P3 = "2026-09-27"
@@ -100,14 +100,15 @@ def main():
     det = Compound(children=[hub_group(P), i_girder(P, -P["gy"], -150, 150)])
     dviews = safe_project_views(det, work / "detail")
     dbb = det.bounding_box()
-    s = Sheet(project="BridgePulse", title="General arrangement at midspan", dwg_no="BRP-DWG-001", rev="P5",
-              author="Amish Chadha", date="2026-09-30", scale=0.05, theme="technical",
+    s = Sheet(project="BridgePulse", title="General arrangement at midspan", dwg_no="BRP-DWG-001", rev="P6",
+              author="Amish Chadha", date="2026-10-02", scale=0.05, theme="technical",
               material="6061 Al plate; bought-in parts per bom/bom.csv. PRELIMINARY, NOT FOR FABRICATION",
               revisions=[("P1", "Preliminary GA for TRL 3 (from cad/src/model.py)", DATE, "AC"),
                          ("P2", "Probe note per BRP-DDR-002", DATE, "AC"),
                          ("P3", "Far gauge cable clear of bottom flanges per BRP-DDR-003", DATE_P3, "AC"),
                          ("P4", "Layout and labels tidied", "2026-09-30", "AC"),
-                         ("P5", "Made constructable per BRP-DDR-004", "2026-09-30", "AC")])
+                         ("P5", "Made constructable per BRP-DDR-004", "2026-09-30", "AC"),
+                         ("P6", "Lanyard, pad eye and girder clamp per BRP-DEC-001", "2026-10-02", "AC")])
     k = s.scale
     # front and right views only (a top view shows little but the two girders); placed by hand so
     # that detail A fits beside them
@@ -147,6 +148,15 @@ def main():
     Zf = lambda mz: y + h - (mz - bb.min.Z) * k
     L.append(_t(X(0), Zf(bb.max.Z) - 2, "MIDSPAN", 1.9, 600, MUTED, "middle"))
     L.append(_t(M + 22, fy - 12, "DECK AND HANDRAILS OMITTED FOR CLARITY; HUB AND FIELDNODE ON THE -Y (SOUTH) SIDE", 2.0, 600, MUTED))
+    LAN = lanyard_geometry(P)
+    lcx, lw = P["lan_clamp_x"], P["lan_clamp"][0]
+    fe = -(P["clamp_x"] + P["clamp"][0] / 2)                     # outer edge of the left foot clamp
+    yl = Zf(D["deck_z0"]) - 4
+    L += [ext(X(lcx + lw / 2), Zf(z0 + 30) - 1, X(lcx + lw / 2), yl - 1), ext(X(fe), Zf(z0 + 60) - 1, X(fe), yl - 1)]
+    L += dim_h(X(lcx + lw / 2), X(fe), yl, f"{LAN['clear_x']:.0f}")
+    L += leader(X(lcx), Zf(z0 + 10), M + 2, Zf(z0 + 640), "LANYARD GIRDER CLAMP, ITEM 4")
+    L += leader(X((lcx + P["pad_eye"][0]) / 2), Zf((LAN["pez"] + LAN["cl_eye_z"]) / 2), M + 2, Zf(z0 + 760),
+                "3 MM STAINLESS WIRE LANYARD")
 
     # detail A: right view of the hub on the south girder, 1:5
     ks = 0.25
@@ -170,13 +180,15 @@ def main():
     L += leader(Yd(D["hub_y1"]) + 2, Zd(D["hub_zc"]), Yd(dbb.max.Y) + 6, Zd(D["hub_zc"] + 60), "HUB, ITEMS 1 TO 3")
     L += leader(Yd(D["web_face"] - P["plate_t"] / 2), Zd(D["plate_z0"] + 60), Yd(dbb.max.Y) + 6, Zd(D["plate_z0"] + 110), "PLATE, ITEM 4")
     L += leader(Yd(0 - P["gy"]), Zd(D["plate_z1"] + 10), Yd(-P["gy"]) + 10, Zd(D["plate_z1"] + 50), f"M{P['jack_d']:.0f} JACK SCREW")
+    L += leader(Yd(D["web_face"] - P["plate_t"] - 10), Zd(D["plate_z1"] - P["pad_eye"][1]), Yd(dbb.max.Y) + 6,
+                Zd(D["plate_z1"] - P["pad_eye"][1] - 30), "LANYARD PAD EYE")
 
     s._layers += L
     s.add_svg(views["iso"], 304, 40, 112, 110, label="Isometric view", sublabel="Not to scale; deck omitted")
     s.add_notes("Main dimensions and interfaces (mm)", [
         f"Hub {P['hub'][0]:.0f} x {P['hub'][1]:.0f} x {P['hub'][2]:.0f} IP67, {D['hub_inside_tip']:.0f} inside the flange tip line",
-        f"Plate {P['plate_w']:.0f} x {D['plate_h']:.0f} x {P['plate_t']:.0f} Al on the web, {P['fillet_gap']:.0f} clear of each flange",
-        f"Foot clamps at x = +/-{P['clamp_x']:.0f}; M12 jack to top flange; no drilling",
+        f"Plate {P['plate_w']:.0f} x {D['plate_h']:.0f} x {P['plate_t']:.0f} Al on the web, {P['fillet_gap']:.0f} clear of flanges; no drilling",
+        f"Foot clamps +/-{P['clamp_x']:.0f}; M12 jack; lanyard clamp at {P['lan_clamp_x']:.0f}, {lanyard_geometry(P)['clear_x']:.0f} clear",
         f"Gauge covers under each flange at midspan; 10 max below soffit (R9: 15)",
         f"FieldNode on the post, base {P['fn_base_above_deck']:.0f} above deck; M12 5-pin, RS-485, 5 V",
         "Probes (item 6) TMP1826 class, 7 dia sheaths; steel on flange, air in shade",

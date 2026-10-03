@@ -20,11 +20,13 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT / ".kit"), str(ROOT / "cad" / "src")]
 import build_views as bv  # noqa: E402
 from build_views import Part  # noqa: E402
-from model import PARAMS as P, build_components, derived, bridge_context, i_girder, fuse  # noqa: E402
+from model import PARAMS as P, build_components, derived, bridge_context, i_girder, fuse, lanyard_geometry  # noqa: E402
 
 OUT = ROOT / "docs" / "05-build-plan"
 DWG = ROOT / "cad" / "drawings"
 DATE = "2026-09-30"
+DATE_P2 = "2026-10-02"
+LAN = lanyard_geometry(P)
 REPO = "github.com/BoujeeEnjinia1701/bridgepulse"
 D = derived(P)
 C = build_components(P)
@@ -37,7 +39,7 @@ COL = {"plate": "#A8A29E", "feet": "#1D4ED8", "jaws": "#B45309", "packers": "#F5
        "jack_block": "#0E7490", "body": "#D1D5DB", "lid": "#E5E7EB", "glands": "#1F2937", "pglands": "#4B5563",
        "connector": "#D4A017", "spacers": "#9CA3AF", "acc": "#0F766E", "sig": "#2563EB", "patches": "#C2410C",
        "coupons": "#7C2D12", "probe": "#7C3AED", "lead": "#A78BFA", "cable": "#334155", "clips": "#64748B",
-       "fieldnode": "#115E59", "bands": "#9CA3AF", "girder": "#B6BCC4", "post": "#B6BCC4"}
+       "fieldnode": "#115E59", "bands": "#9CA3AF", "girder": "#B6BCC4", "post": "#B6BCC4", "lanyard": "#B91C1C"}
 
 
 def part(name, shape, color, explode=(0, 0, 0), alpha=1.0):
@@ -87,6 +89,7 @@ def made():
         "probes": part("Temperature probes (2) and clip", S("steel_probe", "air_probe", "probe_clip"), COL["probe"]),
         "lid": part("Hub lid", C["lid"].shape, COL["lid"]),
         "fieldnode": part("FieldNode core with long bands", S("fieldnode", "fn_bands"), COL["fieldnode"]),
+        "lanyard": part("Pad eye, wire lanyard, girder clamp", S("pad_eye", "pad_eye_screws", "lanyard", "lan_clamp", "lan_screw"), COL["lanyard"]),
     }
 
 
@@ -99,9 +102,9 @@ def overview():
            "body": (0, -260, 0), "pens": (0, -260, -150), "stand": (0, -370, 0), "acc": (0, -460, 20),
            "sig": (0, -540, -20), "hub_screws": (0, -620, 0), "patches": (-420, 0, -300), "coupons": (-420, 0, -120),
            "probes": (-120, -60, 330), "cables": (330, -40, -260), "lid": (0, -740, 0),
-           "fieldnode": (520, 650, -1020)}
+           "fieldnode": (520, 650, -1020), "lanyard": (-60, -420, -120)}
     order = ["plate", "feet", "clamps", "jack", "body", "pens", "stand", "acc", "sig", "hub_screws",
-             "patches", "coupons", "probes", "cables", "lid", "fieldnode"]
+             "patches", "coupons", "probes", "cables", "lid", "fieldnode", "lanyard"]
     parts = []
     for k in order:
         p = M[k]
@@ -112,13 +115,13 @@ def overview():
         p.explode = off[k]
         parts.append(p)
     return bv.overview(parts, OUT / "overview.png", "BridgePulse prototype: every component, pulled apart",
-                       subtitle="Numbered in build order. South girder side, seen from the front right and above; "
-                                "the FieldNode core (16) is drawn beside the hub, not at its place on the post",
+                       subtitle="Numbered in build order, seen from the front right and above. The FieldNode core (16) goes on the "
+                                "post; the lanyard (17) runs to its own girder clamp",
                        elev=16, azim=-52, size=(11, 8.5), dpi=150, key=True)
 
 
 # ----------------------------------------------------------------- making sketches
-def sheets():
+def sheets(only=None):
     import build123d as b
     M = made()
     g = girder_seg(-250, 250)
@@ -130,9 +133,13 @@ def sheets():
     sx, sz = P["hub_screws"]
     fz = D["foot_screw_z"]
 
+    pex, pedz = P["pad_eye"]
+    peh = P["pad_eye_size"][0] / 2 - 5
     # 101 mounting plate, laid flat in the drawing frame (front face toward the viewer)
-    out.append(bv.component_sheet(
-        Part("Mounting plate", C["plate"].shape, COL["plate"]), [M["feet"], M["body"], M["jack"], g],
+    if only in (None, 101):
+      out.append(bv.component_sheet(
+        Part("Mounting plate", C["plate"].shape, COL["plate"]),
+        [M["feet"], M["body"], M["jack"], part("Pad eye", S("pad_eye", "pad_eye_screws"), COL["lanyard"]), g],
         dwg_no="BRP-DWG-101", title="BridgePulse mounting plate: making sketch",
         material="6061 aluminium plate 8 mm, hard anodized after machining",
         view_shape=b.Pos(0, -(wf - pt / 2), -(pz0 + pz1) / 2) * C["plate"].shape, inset_view=(18, -60),
@@ -145,10 +152,15 @@ def sheets():
                f"Foot block screws: four M6 tapped (drill 5.0) at {P['clamp_x'] - 10:.0f} and {P['clamp_x'] + 10:.0f}",
                f"  each side, {fz - pz0:.0f} up.",
                f"Jack block screws: two M6 tapped at 12 each side, {D['plate_h'] - P['tab'][2] / 2:.1f} up.",
-               f"Lanyard hole: 6.5 mm, 85 left of centre, {D['plate_h'] - 20:.1f} up.",
+               f"Pad eye screws: two M5 tapped at {abs(pex) - peh:.0f} and {abs(pex) + peh:.0f} left of centre,",
+               f"  {D['plate_h'] - pedz:.1f} up (left side only).",
                "Deburr; break the edges 0.5 mm; hard anodize (it also insulates).",
                "Check: lay the foot blocks and jack block on it and look through each hole."],
-        **base))
+        rev="P2", revisions=[("P1", "Making sketch for the prototype build plan", DATE, "AC"),
+                             ("P2", "Pad eye holes replace the lanyard hole (BRP-DEC-001)", DATE_P2, "AC")],
+        **{**base, "date": DATE_P2}))
+    if only == 101:
+        return out
 
     # 102 foot block, drawn at the right-hand clamp
     fb = win(C["feet"].shape, 0, 200, -800, -500, 1100, 1400)
@@ -300,7 +312,8 @@ def layouts():
     jz = ph - P["tab"][2] / 2
     holes = ([(x, hzc - pz0 + dz, 5.0, "M5 tapped") for x in (-sx, sx) for dz in (-sz, sz)]
              + [(s * (P["clamp_x"] + dx), fz, 6.0, "M6 tapped") for s in (-1, 1) for dx in (-10, 10)]
-             + [(dx, jz, 6.0, "M6 tapped") for dx in (-12, 12)] + [(-85, ph - 20, 6.5, "6.5")])
+             + [(dx, jz, 6.0, "M6 tapped") for dx in (-12, 12)]
+             + [(P["pad_eye"][0] + dx, ph - P["pad_eye"][1], 5.0, "pad eye") for dx in (-(P["pad_eye_size"][0] / 2 - 5), P["pad_eye_size"][0] / 2 - 5)])
     fig = plt.figure(figsize=(9.5, 10), dpi=150)
     ax = fig.add_axes([0.1, 0.08, 0.6, 0.82]); ax.set_aspect("equal"); ax.set_axis_off()
     ax.add_patch(Rectangle((-pw / 2, 0), pw, ph, fc="#F5F5F4", ec=INK, lw=1.2))
@@ -312,16 +325,21 @@ def layouts():
         ax.add_patch(Rectangle((s * P["clamp_x"] - 20, 0), 40, D["flange_top"] + P["foot"][1] - pz0, fc="none", ec="#94A3B8", lw=0.8, ls="--"))
     ax.add_patch(Rectangle((-20, ph - 30), 40, 30, fc="none", ec="#94A3B8", lw=0.8, ls="--"))
     ax.text(0, ph - 41, "jack block", ha="center", fontsize=7, color="#64748B")
+    pbx, _, pbh, _ = P["pad_eye_size"]
+    ax.add_patch(Rectangle((P["pad_eye"][0] - pbx / 2, ph - P["pad_eye"][1] - pbh / 2), pbx, pbh, fc="none", ec="#94A3B8", lw=0.8, ls="--"))
+    ax.text(P["pad_eye"][0], ph - P["pad_eye"][1] - pbh / 2 - 5, "pad eye", ha="center", va="top", fontsize=7, color="#64748B")
     ax.text(P["clamp_x"], 26, "foot block", ha="center", fontsize=7, color="#64748B")
     xs, zs = set(), set()
     for x, z, dia, kind in holes:
         ax.add_patch(plt.Circle((x, z), dia / 2, fc="white", ec=INK, lw=1))
         ax.plot([x - dia / 2 - 2, x + dia / 2 + 2], [z, z], color=MUT, lw=0.4); ax.plot([x, x], [z - dia / 2 - 2, z + dia / 2 + 2], color=MUT, lw=0.4)
-        if kind != "6.5":
+        if kind != "pad eye":
             xs.add(round(abs(x), 1))
         zs.add(round(z, 1))
-    ax.plot([-85, -85], [0, -7], color=AC, lw=0.4, ls=":")
-    ax.text(-85, -10, "85 (left only)", ha="center", va="top", fontsize=7.5, color=AC)
+    for xx in [h[0] for h in holes if h[3] == "pad eye"]:
+        ax.plot([xx, xx], [0, -7], color=AC, lw=0.4, ls=":")
+    pe_xs = sorted(abs(h[0]) for h in holes if h[3] == "pad eye")
+    ax.text(-(pe_xs[0] + pe_xs[1]) / 2, -10, f"{pe_xs[0]:g} and {pe_xs[1]:g}\n(left only)", ha="center", va="top", fontsize=7.5, color=AC)
     for i, x in enumerate(sorted(xs)):
         yl = -10 - 9 * (i % 2)
         ax.plot([x, x], [0, yl + 3], color=AC, lw=0.4, ls=":")
@@ -337,7 +355,7 @@ def layouts():
     fig.text(0.04, 0.95, f"Seen from the front (the face the hub sits on). Plate {pw:.0f} x {ph:.1f} x 8 mm. Figures in mm, from the model.",
              fontsize=8.5, color=MUT, va="top")
     key = ["Hub screws: M5 tapped,", "  drill 4.2 (4 holes)", "Foot block screws: M6", "  tapped, drill 5.0 (4)",
-           "Jack block screws: M6", "  tapped, drill 5.0 (2)", "Lanyard: 6.5 clear (1),", "  left side only", "",
+           "Jack block screws: M6", "  tapped, drill 5.0 (2)", "Pad eye screws: M5", "  tapped, drill 4.2 (2),", "  left side only", "",
            "Every hole goes right", "through. The back face lies", "flat on the girder web:", "no screw may stand out", "behind it."]
     fig.text(0.72, 0.86, "What each hole is", fontsize=9, fontweight="bold", color=INK, va="top")
     for i, t in enumerate(key):
@@ -523,6 +541,19 @@ def joints():
         OUT / "joint-09.png", "Joint 9: FieldNode on the square post (cut at the lower band, seen from above)",
         subtitle="V-blocks left off: the back plate bears flat on the post; the band goes round the post and through both slots",
         elev=88, azim=-90, size=(8, 6)))
+    # 10 lanyard girder clamp on the bottom flange tip, with the lanyard's thimble eye
+    lcx = P["lan_clamp_x"]
+    tip = D["tip"]
+    box_ = (lcx - 60, lcx + 60, -725, -600, 1180, 1290)
+    ss_y = tip + 18
+    out.append(jnt([
+        (part("Bottom flange", win(G, *box_), COL["girder"]), (lcx + 50, -640, FT)),
+        (part("Girder clamp, hooked on the flange tip", win(C["lan_clamp"].shape, *box_), COL["lanyard"]), (lcx - 20, tip - 5, FT + 12)),
+        (part("Set screw and lock nut, on the flange top", win(C["lan_screw"].shape, *box_), COL["bolt"]), (lcx, ss_y, FT + 33)),
+        (part("Wire lanyard, thimble eye round the clamp's eye", win(C["lanyard"].shape, *box_), "#475569"), (lcx, LAN["cl_bar_y"] - 5.5, LAN["cl_eye_z"] + 12))],
+        OUT / "joint-10.png", "Joint 10: lanyard girder clamp on the bottom flange",
+        subtitle=f"Hooked on the flange tip {LAN['clear_x']:.0f} mm along the span from the nearer foot clamp; nothing is drilled",
+        elev=18, azim=-60, size=(8, 6)))
     return out
 
 
@@ -530,7 +561,7 @@ def joints():
 def steps():
     M = made()
     out = []
-    g = girder_seg(-220, 220)
+    g = girder_seg(-320, 320)
 
     def st(n, done, new, title, sub, **kw):
         out.append(bv.step(done, new, OUT / f"step-{n:02d}.png", f"Step {n}: {title}", subtitle=sub, **kw))
@@ -579,34 +610,41 @@ def steps():
        "hub onto the plate",
        "Base flat on the plate; four M5 x 12 screws from inside the box, sealing washer under each head",
        elev=15, azim=-60, label_done=False)
+    lan_new = [mv(part("Pad eye and two M5 screws", S("pad_eye", "pad_eye_screws"), COL["lanyard"]), (0, -90, 0)),
+               mv(part("Girder clamp, set screw and lock nut", S("lan_clamp", "lan_screw"), "#7F1D1D"), (0, -90, 0)),
+               mv(part("Wire lanyard", C["lanyard"].shape, "#475569"), (0, -150, 60))]
+    st(9, fitted + [hub], lan_new, "lanyard and its girder clamp",
+       "Pad eye on the plate above the hub; clamp hooked on the flange tip 150 mm or more from the foot clamps; lanyard between them",
+       elev=15, azim=-60, label_done=False)
+    lanyard = part("Lanyard", S("pad_eye", "pad_eye_screws", "lanyard", "lan_clamp", "lan_screw"), "#9CA3AF")
     hubin = part("Hub", S("body", "glands", "probe_glands", "connector", "acc", "sig"), COL["body"])
-    gz = [g, pl, M["feet"], clamps, fitted[-1], hubin]
-    st(9, gz, [mv(part("Active gauge under its cover", win(C["patches"].shape, -100, 100, -700, -500, 1100, 1300), COL["patches"]), (0, 0, -80)),
+    gz = [g, pl, M["feet"], clamps, fitted[-1], hubin, lanyard]
+    st(10, gz, [mv(part("Active gauge under its cover", win(C["patches"].shape, -100, 100, -700, -500, 1100, 1300), COL["patches"]), (0, 0, -80)),
                mv(part("Dummy coupon", win(C["coupons"].shape, -100, 100, -700, -500, 1100, 1300), COL["coupons"]), (0, 0, 60))],
        "strain gauge and dummy coupon (south girder; the north girder is the same)",
        "Paint removed only with the owner's permission; gauge bonded under the flange; coupon on silicone",
        elev=-25, azim=-60, label_done=False)
     near = win(S("near_cable", "far_cable", "probe_leads", "cable_clips"), -200, 200, -720, -480, 1150, 1340)
     sprobe = S("steel_probe", "probe_clip")
-    st(10, gz + [part("Gauges", win(S("patches", "coupons"), -100, 100, -700, -500, 1100, 1300), "#9CA3AF")],
+    st(11, gz + [part("Gauges", win(S("patches", "coupons"), -100, 100, -700, -500, 1100, 1300), "#9CA3AF")],
        [mv(part("Steel probe under its flange clip", sprobe, COL["probe"]), (0, -40, 0)),
         mv(part("Gauge cables, probe leads, flange clips", near, COL["cable"]), (0, 0, -35))],
        "steel probe, cables and clips",
        "Probe under its clip on the flange; cables tied to flange clips, into their glands from below; glands tightened",
        elev=10, azim=-55, label_done=False)
-    st(11, gz + [part("Cables", near + sprobe, "#9CA3AF")], [mv(part("Hub lid", C["lid"].shape, "#0F766E"), (0, -120, 0))], "close the lid",
+    st(12, gz + [part("Cables", near + sprobe, "#9CA3AF")], [mv(part("Hub lid", C["lid"].shape, "#0F766E"), (0, -120, 0))], "close the lid",
        "Fresh desiccant pack inside; gasket clean, no wire across it; lid screws tightened evenly in a cross pattern",
        elev=15, azim=-60, label_done=False)
     post = part("Post stub, 50 mm square", win(CTX["post"], -100, 100, -900, -700, D["fn_z0"] - 200, D["fn_z0"] + 700), COL["post"])
-    st(12, [post], [mv(part("FieldNode core (V-blocks left off)", C["fieldnode"].shape, COL["fieldnode"]), (0, -150, 0)),
+    st(13, [post], [mv(part("FieldNode core (V-blocks left off)", C["fieldnode"].shape, COL["fieldnode"]), (0, -150, 0)),
                     mv(part("Long band clamps (2)", C["fn_bands"].shape, "#475569"), (0, 120, 0))],
        "FieldNode core onto the post",
        "Back plate flat on the post's face; each band round the post, through both slots and across the plate front",
        elev=18, azim=-50, label_done=False)
     fn_full = part("FieldNode", S("fieldnode", "fn_bands"), "#9CA3AF")
     wide = win(S("fn_cable", "air_probe", "probe_leads", "far_cable"), -300, 300, -1000, 700, 1100, 2100)
-    st(13, [g, part("North girder offcut", i_girder(P, P["gy"], -220, 220), COL["girder"]), part("Post", CTX["post"], "#9CA3AF"),
-            fn_full, part("Monitor at the girder", S("plate", "feet", "body", "lid", "jack_block"), "#9CA3AF")],
+    st(14, [g, part("North girder offcut", i_girder(P, P["gy"], -320, 320), COL["girder"]), part("Post", CTX["post"], "#9CA3AF"),
+            fn_full, part("Monitor at the girder", S("plate", "feet", "body", "lid", "jack_block", "pad_eye", "lanyard", "lan_clamp"), "#9CA3AF")],
        [part("M12 cable up the post to the FieldNode port", C["fn_cable"].shape, COL["cable"]),
         part("Far gauge cable between the girders", win(C["far_cable"].shape, -300, 300, -480, 700, 1100, 2100), "#C2410C"),
         part("Air probe hung from the far cable", S("air_probe") + win(C["probe_leads"].shape, -300, 300, -480, 700, 1300, 1600), COL["probe"])],
@@ -680,7 +718,7 @@ def wiring():
 
 if __name__ == "__main__":
     what = sys.argv[1:] or ["overview", "sheets", "layouts", "joints", "steps", "wiring"]
-    fns = {"overview": overview, "sheets": sheets, "layouts": layouts, "joints": joints, "steps": steps, "wiring": wiring}
+    fns = {"overview": overview, "sheets": sheets, "sheet101": lambda: sheets(101), "layouts": layouts, "joints": joints, "steps": steps, "wiring": wiring}
     for w in what:
         r = fns[w]()
         print(w, "->", r)

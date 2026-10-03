@@ -3,7 +3,7 @@ doc_id: BRP-PRC-001
 title: BridgePulse design precis
 project: BridgePulse
 doc_type: Design precis
-version: "0.7"
+version: "0.8"
 status: Draft
 date: '2026-10-02'
 author: Amish Chadha
@@ -37,6 +37,10 @@ revisions:
   date: '2026-10-02'
   author: Amish Chadha
   change: "Decisions of 2026-10-02 carried in: shared FieldNode pinout with Modbus RTU, lanyard to an independent girder clamp, crimped banding on installed units, data ownership"
+- version: "0.8"
+  date: '2026-10-02'
+  author: Amish Chadha
+  change: "Approved follow-ups carried out: lanyard pad eye, wire and girder clamp in the model and the BOM, installation banding priced; mass 3.58 kg on the girder and cost $275.00 from BRP-CAL-001 v0.6"
 ---
 
 # BridgePulse design precis
@@ -45,7 +49,7 @@ revisions:
 
 BridgePulse is a clamp-on monitor for small bridges and footbridges. A sensor hub fixed to a girder at midspan records ambient vibration, strain and temperature for 10 minutes every hour, works out the bridge's natural frequencies and strain statistics on board, and sends a short summary through a FieldNode core over LoRaWAN to TwinKit or CityTwin. Over weeks the system learns how the frequencies move with temperature; a sustained shift outside that band is flagged to the bridge owner's engineer as a reason to inspect sooner. It is a research prototype that supports inspection, never a safety rating.
 
-The TRL 3 calculations (BRP-CAL-001) give 16.9 mW average draw at the FieldNode port, a 36-byte hourly uplink, 1.39 GB per month of raw records kept on a microSD card (22 months on 32 GB), and $252 of BridgePulse-specific parts ($378 with the FieldNode core), $2 over the $250 value-engineering target since the parts that make the design buildable were added (see the value engineering section of BRP-DEC-001). On the 7 m example footbridge the first mode is 23.9 Hz and the instrument can track it to 0.05 % an hour, but walkers' own mass lowers it by up to 6 % while they cross. The hub therefore gates out the time when someone is on the span; in simulation this brings the hourly scatter to 0.015 % or less (R2 at risk until recorded data confirm it; R3 not verifiable at TRL 3).
+The TRL 3 calculations (BRP-CAL-001) give 16.9 mW average draw at the FieldNode port, a 36-byte hourly uplink, 1.39 GB per month of raw records kept on a microSD card (22 months on 32 GB), and $275 of BridgePulse-specific parts ($401 with the FieldNode core), $25 over the $250 value-engineering target since the parts that make the design buildable, the lanyard anchor and the installation banding were added (see the value engineering section of BRP-DEC-001). On the 7 m example footbridge the first mode is 23.9 Hz and the instrument can track it to 0.05 % an hour, but walkers' own mass lowers it by up to 6 % while they cross. The hub therefore gates out the time when someone is on the span; in simulation this brings the hourly scatter to 0.015 % or less (R2 at risk until recorded data confirm it; R3 not verifiable at TRL 3).
 
 ![Figure 1. BridgePulse on an example 7 m steel footbridge](../media/hero.png)
 
@@ -53,7 +57,7 @@ The TRL 3 calculations (BRP-CAL-001) give 16.9 mW average draw at the FieldNode 
 
 ## How it works
 
-1. **Sense.** A low-noise 3-axis MEMS accelerometer, fixed inside the hub to the enclosure base, picks up the bridge's response to wind, footfall and traffic. The hub is screwed to an aluminium plate that lies against the web, stands on two foot blocks clamped to the bottom flange and is wedged against the top flange by a jack screw, so that its own mounting resonance (135 to 271 Hz) is well above the measured band. Two strain gauge half-bridges under the bottom flanges of both girders at midspan measure bending strain. Two temperature probes measure the steel and the shaded air under the deck.
+1. **Sense.** A low-noise 3-axis MEMS accelerometer, fixed inside the hub to the enclosure base, picks up the bridge's response to wind, footfall and traffic. The hub is screwed to an aluminium plate that lies against the web, stands on two foot blocks clamped to the bottom flange and is wedged against the top flange by a jack screw, so that its own mounting resonance (135 to 271 Hz) is well above the measured band. A stainless wire lanyard from a pad eye on the plate to a second, independent girder clamp on the bottom flange holds everything if the mount ever lets go. Two strain gauge half-bridges under the bottom flanges of both girders at midspan measure bending strain. Two temperature probes measure the steel and the shaded air under the deck.
 2. **Record.** Once an hour the FieldNode core switches on the 5 V rail of its sensor port. The hub boots, warms the gauges for 20 s and samples for 600 s: acceleration at 250 Hz on three axes, strain at 20 Hz on two channels, temperature once a minute. The raw record goes to an industrial microSD card so an engineer can download it later.
 3. **Reduce.** The hub first finds each crossing from the strain step and gates out that stretch of the record, with 0.25 s either side and tapered edges, so that the frequency is estimated only while nobody's mass is on the span (BRP-DDR-002). It then reads the record back from the card one axis at a time, computes averaged spectra (Welch method, 65.5 s Hann segments with 50 % overlap), and estimates the frequencies of the first modes below 60 Hz by fitting a single-degree-of-freedom spectrum around each peak. A fit is accepted only if the peak stands 10 dB above the fitted noise and the damping is plausible; otherwise the hour is sent as "no clear peak", never as a shift. It also computes peak amplitudes, RMS acceleration, and the strain minimum, maximum and mean on each channel.
 4. **Send.** The 36-byte summary passes over RS-485 on the M12 cable to the FieldNode core, which sends it as one LoRaWAN uplink; the rail is then switched off until the next hour. Where the data rate in use allows only 11 bytes (US915 DR0, AS923 DR2 with dwell time), the hub sends an 11-byte reduced summary instead: first frequency, its amplitude, the two strain means, steel temperature and a status byte with the gated seconds (BRP-CAL-001, G).
@@ -114,13 +118,14 @@ All values come from BRP-CAL-001 v0.3, which states its assumptions; they are ca
 | Average, with the rail off between records | **16.9 mW** (0.41 Wh per day; 17 % of FieldNode's 100 mW allowance) |
 | Raw data | 1.90 MB per hour; 1.39 GB per month; 22 months on 32 GB |
 | Uplink | 36 bytes hourly, 329 ms at SF9; 11-byte reduced summary where the data rate allows only 11 bytes, 371 ms at SF10 |
-| Mass on the girder | 3.21 kg (hub 0.99 kg, plate 1.25 kg, foot clamps, jack and fixings 0.97 kg); FieldNode core 2.41 kg |
-| Mounting resonance of the hub | 135 to 271 Hz (TRL 2 arrangement about 77 Hz) |
+| Mass on the girder | 3.58 kg (hub 0.99 kg, plate 1.25 kg, foot clamps, jack and fixings 0.97 kg, lanyard girder clamp, pad eye and wire 0.37 kg); FieldNode core 2.41 kg |
+| Mounting resonance of the hub | 135 to 271 Hz (TRL 2 arrangement about 75 Hz) |
+| Lanyard | Peak 1.20 kN if the mount lets go with 25 mm of slack (dynamic factor 38); girder clamp rated 100 kg or more working load |
 | Depth below the soffit | 10 mm at most (limit 15 mm) |
 
 ### Cost
 
-Value-engineering target $250 (a hypothetical control target, not a limit), which under BRP-DDR-001 D1 covers the BridgePulse-specific parts. Estimated cost of the constructable design: $252.00 ($2.00 over the target); with the FieldNode core ($126.00, costed in its own repo) the complete monitor is $378.00. The TMP1826 class probes added $4.00, and the parts that make the design buildable (BRP-DDR-004) $4.00. Savings worth trying are listed in the value engineering section of the design decisions register (BRP-DEC-001). The bridge, installation labor, access equipment, traffic management and paint testing are not included.
+Value-engineering target $250 (a hypothetical control target, not a limit), which under BRP-DDR-001 D1 covers the BridgePulse-specific parts. Estimated cost of the constructable design: $275.00 ($25.00 over the target); with the FieldNode core ($126.00, costed in its own repo) the complete monitor is $401.00. The TMP1826 class probes added $4.00, the parts that make the design buildable (BRP-DDR-004) $4.00, the lanyard anchor decided on 2026-10-02 $19.00 and the stainless banding for installed units $4.00. Savings worth trying are listed in the value engineering section of the design decisions register (BRP-DEC-001). The bridge, installation labor, access equipment, traffic management and paint testing are not included.
 
 ## Key design choices
 
@@ -149,7 +154,7 @@ Each is decided by Amish, 2026-09-25: go with recommendation (BRP-DDR-001, BRP-D
 
 > **Safety:** The FieldNode core contains a lithium iron phosphate cell. Use the fused, protected pack and cold-charge lockout specified by FieldNode and never mount a damaged pack.
 
-> **Safety:** Nothing may be drilled, welded or cut into the structure. The jack screw preload and the clamps must be checked so they cannot loosen and fall onto people, vehicles or boats below; use a secondary lanyard from the hub to a second, independent load-rated girder clamp on the bottom flange, at least 150 mm along the span from the foot clamps. Isolate the aluminium plate from the steel so galvanic corrosion cannot loosen it over time.
+> **Safety:** Nothing may be drilled, welded or cut into the structure. The jack screw preload and the clamps must be checked so they cannot loosen and fall onto people, vehicles or boats below; use a secondary 3 mm stainless wire lanyard from the pad eye on the plate to a second, independent load-rated girder clamp on the bottom flange, at least 150 mm along the span from the foot clamps, fitted with no more than 25 mm of slack. Isolate the aluminium plate from the steel so galvanic corrosion cannot loosen it over time.
 
 > **Safety:** Fit tamper-resistant fasteners on the post-mounted FieldNode so the public cannot pull it off or hang from it: stainless banding with a one-way crimped buckle on installed units (worm-drive bands only on the bench). Keep cables out of reach from the deck.
 

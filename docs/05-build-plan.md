@@ -3,7 +3,7 @@ doc_id: BRP-BLD-001
 title: BridgePulse prototype build plan
 project: BridgePulse
 doc_type: Build plan
-version: "0.3"
+version: "0.4"
 status: Draft
 date: '2026-10-02'
 author: Amish Chadha
@@ -20,7 +20,11 @@ revisions:
   - version: "0.3"
     date: '2026-10-02'
     author: Amish Chadha
-    change: "Decisions of 2026-10-02: wiring follows the adopted FieldNode pinout; safety stop S8 names the lanyard's girder clamp and crimped banding. Pictures unchanged"
+    change: "Decisions of 2026-10-02: wiring follows the adopted FieldNode pinout; safety stop S8 names the lanyard's girder clamp and crimped banding"
+  - version: "0.4"
+    date: '2026-10-02'
+    author: Amish Chadha
+    change: "Approved follow-ups carried out: pad eye, wire lanyard and girder clamp added (new section 3.11, joint 10, step 9; steps renumbered); plate holes, overview, bought parts, bench offcut length and cost updated; all pictures redrawn from the model"
 ---
 
 # BridgePulse prototype build plan
@@ -31,15 +35,15 @@ revisions:
 
 ![Figure 1. Every component, pulled apart and numbered in build order](05-build-plan/overview.png)
 
-*Figure 1. Every component pulled apart and numbered in build order. The FieldNode core (16) is drawn beside the hub; it goes on the handrail post.*
+*Figure 1. Every component pulled apart and numbered in build order. The FieldNode core (16) is drawn beside the hub; it goes on the handrail post. The lanyard (17) runs from a pad eye on the plate to its own girder clamp.*
 
-The prototype is one BridgePulse monitor fitted to a bench rig that stands in for the middle of the example footbridge: two short offcuts of the girder section, 1.2 m apart, and a stub of the 50 mm square handrail post. At its heart is a sealed die-cast box, the sensor hub, holding an accelerometer board and a signal board. The hub is screwed to an aluminium plate that lies against the girder's web between its flanges, stands on two foot blocks clamped to the bottom flange and is wedged against the top flange by a jack screw, so nothing is drilled into the bridge. A strain gauge under each girder, a dummy gauge on a loose steel coupon beside each, and two temperature probes complete the sensors; cables run to the hub on push-on flange clips, and one cable takes power and data to a FieldNode core on the post. Figure 1 shows the 16 components in the order you make or fit them. Seven are made in a small workshop: the mounting plate, the foot blocks, the clamp jaws and packers, the jack block, the drilled hub box, the dummy gauge coupons and the temperature probes. Everything else is bought, or in the case of the FieldNode core built to its own plan. The work is sawing, drilling, tapping and filing aluminium and steel bar, drilling a die-cast box, potting two small sensors, bonding strain gauges, and wiring bought modules together. The estimated cost of the BridgePulse parts is about $252 from the bill of materials (the value-engineering target is $250), plus the FieldNode core.
+The prototype is one BridgePulse monitor fitted to a bench rig that stands in for the middle of the example footbridge: two short offcuts of the girder section, 1.2 m apart, and a stub of the 50 mm square handrail post. At its heart is a sealed die-cast box, the sensor hub, holding an accelerometer board and a signal board. The hub is screwed to an aluminium plate that lies against the girder's web between its flanges, stands on two foot blocks clamped to the bottom flange and is wedged against the top flange by a jack screw, so nothing is drilled into the bridge. A strain gauge under each girder, a dummy gauge on a loose steel coupon beside each, and two temperature probes complete the sensors; cables run to the hub on push-on flange clips, and one cable takes power and data to a FieldNode core on the post. A stainless wire lanyard from a pad eye on the plate to a second girder clamp holds everything if the mount ever lets go. Figure 1 shows the 17 components in the order you make or fit them. Seven are made in a small workshop: the mounting plate, the foot blocks, the clamp jaws and packers, the jack block, the drilled hub box, the dummy gauge coupons and the temperature probes. Everything else is bought, or in the case of the FieldNode core built to its own plan. The work is sawing, drilling, tapping and filing aluminium and steel bar, drilling a die-cast box, potting two small sensors, bonding strain gauges, and wiring bought modules together. The estimated cost of the BridgePulse parts is about $275 from the bill of materials (the value-engineering target is $250), plus the FieldNode core.
 
-> **Safety:** The girder offcuts weigh about 25 kg each: lift them with two people and stand them where they cannot tip. Old bridge steel may carry lead paint; test any offcut taken from a bridge before sanding it. Strain gauge adhesives, conditioners and potting epoxy are chemicals: read their safety data sheets, wear gloves and eye protection and ventilate. Cut steel and aluminium edges are sharp: deburr everything. The FieldNode core holds a lithium iron phosphate cell; follow its own plan's safety stops. Fitting the monitor to a real bridge is work at height, outside this plan (section 6, S8).
+> **Safety:** The girder offcuts weigh about 37 kg each: lift them with two people or a hoist and stand them where they cannot tip. Old bridge steel may carry lead paint; test any offcut taken from a bridge before sanding it. Strain gauge adhesives, conditioners and potting epoxy are chemicals: read their safety data sheets, wear gloves and eye protection and ventilate. Cut steel and aluminium edges are sharp: deburr everything. The FieldNode core holds a lithium iron phosphate cell; follow its own plan's safety stops. Fitting the monitor to a real bridge is work at height, outside this plan (section 6, S8).
 
 ## 2. What changed to make it buildable
 
-The concept showed what the monitor does; some of its parts could not be made, fixed or fitted as drawn, chiefly because a rolled girder has rounded root fillets where its web meets its flanges. Each change below keeps what the monitor does, and all of them are recorded in decision record BRP-DDR-004, open for Amish's review.
+The concept showed what the monitor does; some of its parts could not be made, fixed or fitted as drawn, chiefly because a rolled girder has rounded root fillets where its web meets its flanges. Each change below keeps what the monitor does, and all of them are recorded in decision record BRP-DDR-004, accepted by Amish on 2026-10-02; the lanyard row follows his decision of the same day.
 
 *Table 1. Changes from the concept.*
 
@@ -51,10 +55,11 @@ The concept showed what the monitor does; some of its parts could not be made, f
 | Hub to plate | No fixing | Four screws from inside the box into the plate, with sealing washers (Figure 12) | The box stays sealed and its base is clamped to the plate |
 | Boards in the hub | Signal board on two posts; accelerometer glued | Both boards on four spacers or standoffs (Figure 14) | Firm four-point fixings, clear of the hub screws and gland nuts |
 | Hub penetrations | Two glands and a connector; no way in for the probe leads | Five in one row: two probe glands, two gauge glands, one connector (Figure 13) | Every cable enters through its own seal |
-| Temperature probes | A boss stuck to the web; an air probe hanging from nothing | Steel probe under a flange clip; air probe hanging from the far gauge cable (Figure 19 and step 13) | Fixed without drilling or glue on the bridge |
+| Temperature probes | A boss stuck to the web; an air probe hanging from nothing | Steel probe under a flange clip; air probe hanging from the far gauge cable (Figure 19 and step 14) | Fixed without drilling or glue on the bridge |
 | Dummy coupons | Over the root fillet, fixing not stated | 35 mm out from the web on a bed of silicone (Figure 17) | Same temperature as the girder, none of its strain |
 | Cables | "Clips" with nothing to clip to | Push-on spring-steel flange clips and ties (Figure 20) | No drilling |
 | FieldNode on the post | V-blocks meant for round poles on a square post | V-blocks left off; plate flat on the post with longer bands (Figure 21) | A flat face seats better on a square post |
+| Lanyard | A plain hole in the plate, which a wire could not pass through with the plate flat on the web, and no anchor on the bridge | A stainless pad eye screwed to the plate and a wire lanyard to a second, separate girder clamp on the bottom flange (Figure 22 and step 9) | A second hold on the bridge that shares nothing with the foot clamps |
 
 ## 3. Making the components
 
@@ -68,7 +73,7 @@ Make and check each component before the assembly step that needs it. Sizes are 
 
 ![Figure 3. Hole positions on the mounting plate](05-build-plan/plate-holes.png)
 
-*Figure 3. Every hole, measured up from the bottom edge and sideways from the centre line, with the hub, foot blocks and jack block outlined.*
+*Figure 3. Every hole, measured up from the bottom edge and sideways from the centre line, with the hub, foot blocks, jack block and pad eye outlined.*
 
 **What it is and what it is made from.** The plate everything at the girder hangs on: the hub on its front, the foot blocks at its bottom, the jack block at its top. Its back lies flat on the girder's web. Aluminium plate 8 mm thick, 6061 class, 200 wide; its length is the girder's clear web height (334.6 on an IPE 360) less 22 at each end, 290.6 on the example bridge.
 
@@ -80,11 +85,11 @@ Make and check each component before the assembly step that needs it. Sizes are 
 4. Hub screws: four holes 72 each side of centre, 113.3 and 197.3 up. Drill 4.2 and tap M5 right through.
 5. Foot block screws: four holes 66 and 86 each side of centre, 9 up. Drill 5.0 and tap M6 right through.
 6. Jack block screws: two holes 12 each side of centre, 275.6 up. Drill 5.0 and tap M6 right through.
-7. Lanyard hole: one 6.5 hole, 85 left of centre, 270.6 up.
+7. Pad eye screws: two holes 48 and 76 left of centre, 260.6 up. Drill 4.2 and tap M5 right through.
 8. Deburr every hole on both faces; the back must lie flat on the web, so take off every burr there.
 9. Have the plate hard anodized. The anodizing protects it and insulates it from the steel.
 
-**How it fits the parts next to it.** The back lies flat on the girder web, with 22 mm between each end and the flange, which clears the rounded root fillets (Figure 5). The foot blocks sit flat on the front at the bottom, the hub's base in the middle from 100.3 to 210.3 up, and the jack block at the top. No screw may stand out of the back.
+**How it fits the parts next to it.** The back lies flat on the girder web, with 22 mm between each end and the flange, which clears the rounded root fillets (Figure 5). The foot blocks sit flat on the front at the bottom, the hub's base in the middle from 100.3 to 210.3 up, the jack block at the top and the lanyard's pad eye at the top left. No screw may stand out of the back.
 
 **Check before moving on.** Lay the foot blocks and jack block on it and look through each hole: the holes line up without forcing a screw. Hold the plate against the web of the girder offcut: it fits between the fillets with no rock.
 
@@ -276,7 +281,7 @@ The coupon lies on the top of the bottom flange, its centre 35 out from the web 
 
 *Figure 19. The steel probe lies on the bottom flange, 6.5 mm in from its edge, under a push-on flange clip.*
 
-The steel probe lies along the top of the bottom flange, 140 left of centre and 6.5 in from the flange edge, on a smear of thermal paste, held down by a spring-steel flange clip pushed onto the flange edge. Its lead runs up to the hub's left probe gland. The air probe hangs on its lead in the shade between the girders (step 13).
+The steel probe lies along the top of the bottom flange, 140 left of centre and 6.5 in from the flange edge, on a smear of thermal paste, held down by a spring-steel flange clip pushed onto the flange edge. Its lead runs up to the hub's left probe gland. The air probe hangs on its lead in the shade between the girders (step 14).
 
 **Check before moving on.** Put both probes in a bath of crushed ice and water with a reference thermometer: each reads 0 °C within 0.5 °C (R5).
 
@@ -305,20 +310,33 @@ The steel probe lies along the top of the bottom flange, 140 left of centre and 
 
 **Check before moving on.** Each band closes on the post with adjustment to spare, and the node does not turn on the post when pushed by hand.
 
-### 3.11 Bought components
+### 3.11 Lanyard and its girder clamp (bought)
+
+![Figure 22. Joint 10: lanyard girder clamp on the bottom flange](05-build-plan/joint-10.png)
+
+*Figure 22. The girder clamp hooked on the edge of the bottom flange, its set screw on the flange top and the lanyard's eye round the clamp's eye.*
+
+**What it is.** The second hold on the bridge, in case the foot clamps or the jack ever let go. Three bought parts: a stainless pad eye with a 38 x 22 base and two M5 x 10 screws; a 3 mm stainless wire lanyard about 0.45 m long with a thimble eye and a crimped ferrule at each end; and a single-flange girder clamp with an eye, a set screw and a lock nut, whose maker rates it for a working load of 100 kg or more.
+
+**How it fits.** The pad eye is screwed to the plate's front at the top left, above the hub, into the two tapped holes of section 3.1, its screws ending 1.5 short of the web. The girder clamp hooks over the edge of the bottom flange with its lower jaw under the flange, 150 or more along the span from the nearer foot clamp (159 on the example) on the left, and its set screw is tightened down onto the flange top and locked. One end of the lanyard goes round the pad eye's loop and the other round the clamp's eye. The lanyard runs straight past the left end of the hub with no more than 25 of slack, since the slack sets how hard the lanyard is snatched if the mount lets go.
+
+**Check before moving on.** The clamp cannot be pulled off the flange by hand; the lanyard clears the hub and every cable; the slack is 25 or less.
+
+### 3.12 Bought components
 
 Buy to specification, not brand. Line numbers are those of the bill of materials.
 
 - **Hub enclosure (line 1).** Die-cast aluminium box, IP67, 170 x 64 x 110 outside, gasketed lid; two M16 x 1.5 nylon glands for 4 to 8 cable and two M12 x 1.5 glands for 3 to 6.5 cable, each IP68.
 - **Accelerometer board (line 2).** ADXL355 class, 22.5 µg/√Hz, SPI, on a breakout with four mounting holes; four 5 metal spacers.
 - **Signal board (line 3).** As section 3.6; four 14 standoffs; bridge completion resistors 10 k, 0.1 %.
-- **Mounting fixings (line 4).** Stainless: one M12 x 70 hex screw and one M12 nut; two M10 x 35 hex bolts and washers; six M6 x 30 cap screws; four M5 x 12 screws with bonded sealing washers; nylon isolating washers; a 3 mm stainless lanyard.
+- **Mounting fixings and lanyard (line 4).** Stainless: one M12 x 70 hex screw and one M12 nut; two M10 x 35 hex bolts and washers; six M6 x 30 cap screws; four M5 x 12 screws with bonded sealing washers; nylon isolating washers. Lanyard: as section 3.11.
 - **Strain gauges (line 5).** Four 350 Ω foil gauges self-temperature-compensated for steel, from one batch; cyanoacrylate gauge adhesive; surface preparation kit; gauge coating and four cover patches about 60 x 40; neutral-cure silicone.
 - **Temperature probes (line 6).** Two TMP1826 class sensors on carriers, two stainless sheaths 7 x 60, sealed 3-core lead, potting epoxy, adhesive-lined heat-shrink.
 - **Cables and clips (line 7).** As section 3.9, and the M12 5-pin panel connector (rear mounting, M16 thread).
 - **FieldNode core (line 8).** As section 3.10.
 - **microSD card (line 9).** 32 GB, rated -25 to +85 °C.
-- **Bench rig (not in the bill of materials).** Two offcuts of the girder section about 450 long (IPE 360 on the example bridge), set up on the bench 1.2 m apart, centre to centre; a 1.5 m stub of 50 x 50 x 3 square hollow section held upright in a stand.
+- **Installation banding (line 10, installed units only).** Two lengths of 12.7 x 0.76 stainless banding, about 0.4 m each, with two one-way crimped buckles, which replace the FieldNode's worm-drive band clamps on a bridge open to the public. The bench unit keeps the worm-drive bands. Fitting it needs a banding tool.
+- **Bench rig (not in the bill of materials).** Two offcuts of the girder section about 650 long (IPE 360 on the example bridge), long enough for the lanyard's girder clamp, set up on the bench 1.2 m apart, centre to centre; a 1.5 m stub of 50 x 50 x 3 square hollow section held upright in a stand.
 
 ## 4. Putting it together
 
@@ -372,33 +390,39 @@ Wind the jack screw up until its end bears on the top flange, then a further qua
 
 With the lid off, hold the hub's base flat on the plate, centred, and fit the four M5 x 12 screws from inside the box, a bonded sealing washer under each head. Tighten evenly.
 
-### Step 9: strain gauge and dummy coupon
+### Step 9: lanyard and its girder clamp
 
 ![Step 9](05-build-plan/step-09.png)
 
-On each girder offcut: prepare a patch of bare steel under the bottom flange on the girder's centre line, bond the active gauge along the girder, solder its leads, coat it and fit its cover. Set the dummy coupon on silicone on the flange top as section 3.7. On a real bridge, paint is removed only with the owner's permission and after a lead test (section 6, S4).
+Screw the pad eye to the plate's front at the top left with its two M5 x 10 screws. Hook the girder clamp over the edge of the bottom flange 150 or more to the left of the left foot block, lower jaw under the flange, and tighten its set screw onto the flange top; lock it with its nut. Fit the lanyard between the pad eye and the clamp's eye as section 3.11, with no more than 25 of slack. **Hold point:** the lanyard is fitted before anyone works below the hub.
 
-### Step 10: steel probe, cables and clips
+### Step 10: strain gauge and dummy coupon
 
 ![Step 10](05-build-plan/step-10.png)
 
-Push the probe clip onto the flange edge over the steel probe, with thermal paste under the probe. Push the cable clips onto the flange edges, run the near gauge cable and the steel probe lead to their glands, tie them to the clips, and tighten the glands on them. Connect them at the terminal block.
+On each girder offcut: prepare a patch of bare steel under the bottom flange on the girder's centre line, bond the active gauge along the girder, solder its leads, coat it and fit its cover. Set the dummy coupon on silicone on the flange top as section 3.7. On a real bridge, paint is removed only with the owner's permission and after a lead test (section 6, S4).
 
-### Step 11: close the lid
+### Step 11: steel probe, cables and clips
 
 ![Step 11](05-build-plan/step-11.png)
 
-Put a fresh desiccant pack in the hub. Check the gasket is clean and seated with no wire across it, and tighten the lid screws evenly in a cross pattern.
+Push the probe clip onto the flange edge over the steel probe, with thermal paste under the probe. Push the cable clips onto the flange edges, run the near gauge cable and the steel probe lead to their glands, tie them to the clips, and tighten the glands on them. Connect them at the terminal block.
 
-### Step 12: FieldNode core onto the post
+### Step 12: close the lid
 
 ![Step 12](05-build-plan/step-12.png)
 
-Hold the FieldNode's back plate flat on the post's outer face, its box base 450 above the deck level. Pass each band round the post, through both slots and across the plate's front, worm-drive housing behind the post, and tighten. **Hold point:** the FieldNode core has passed its own plan's safety stops before its cell is fitted.
+Put a fresh desiccant pack in the hub. Check the gasket is clean and seated with no wire across it, and tighten the lid screws evenly in a cross pattern.
 
-### Step 13: cable to the FieldNode, far gauge cable and air probe
+### Step 13: FieldNode core onto the post
 
 ![Step 13](05-build-plan/step-13.png)
+
+Hold the FieldNode's back plate flat on the post's outer face, its box base 450 above the deck level. Pass each band round the post, through both slots and across the plate's front, worm-drive housing behind the post, and tighten. **Hold point:** the FieldNode core has passed its own plan's safety stops before its cell is fitted.
+
+### Step 14: cable to the FieldNode, far gauge cable and air probe
+
+![Step 14](05-build-plan/step-14.png)
 
 Plug the M12 cable into the hub's panel connector, run it out past the flange edge and up beside the post, clipped to it, and into the FieldNode's port B. Run the far gauge cable from the second girder's gauge under its flange, across between the girders and under the south flange to the right gauge gland. Hang the air probe on its lead from the far cable's crossing, about 110 below it, tie its lead along the far cable to the right probe gland, and tighten both glands. On the bench, tie the crossing to the bench frame.
 
@@ -411,6 +435,7 @@ These are the checks a TRL 4 test report would record; this plan only lists them
 | Check | Requirement | How | Pass when |
 | --- | --- | --- | --- |
 | Penetrations and lid sealed | R10 | Look at each seal under a lamp; gland caps tight on their cables | Every seal evenly squeezed; no gap at the lid gasket |
+| Lanyard fitted | Safety | Look along the lanyard; pull the girder clamp by hand | Clamp 150 mm or more from the foot clamps and firm; slack 25 mm or less; nothing rubs on the lanyard |
 | Mount is firm | R1, R2 | Push the hub by hand in every direction; tap the hub with a soft mallet while recording the accelerometer | Nothing moves at any joint; the hub's own mode in the record is above 120 Hz |
 | Accelerometer noise | R1 | Record 10 minutes on a quiet bench at night | Noise density 25 µg/√Hz or less in the 0.5 to 60 Hz band |
 | Strain channels | R4 | Read both channels at rest, then put a known shunt resistor across each active gauge | Steady readings; the shunt step matches its calculated strain within 2 µε |
@@ -431,8 +456,8 @@ Stop at each point. Carry on only when everything listed is true.
 - **S4. Before paint is removed from a real bridge.** The owner's written permission is in hand, and the lead test of S2 is done on that bridge.
 - **S5. Before the hub is first powered.** The bench supply is set to 5 V with a 200 mA current limit; the panel connector's pin assignment is checked against the wiring with a meter, not by wire colour.
 - **S6. Before the FieldNode core's cell is fitted.** Its own plan's safety stops are passed (FND-BLD-001).
-- **S7. Before the rig is left unattended.** The jack lock nut and both clamp bolts are tight and their torques recorded; no cable is under strain.
-- **S8. Before any installation on a bridge (outside this plan).** The owner's written permission; a trained crew of at least two; fall protection and a rescue plan for work over water; traffic management where needed; the lanyard fitted to its anchor, a second load-rated girder clamp on the bottom flange at least 150 mm along the span from the foot clamps; the FieldNode's bands replaced by stainless banding with one-way crimped buckles. Never work alone.
+- **S7. Before the rig is left unattended.** The jack lock nut and both clamp bolts are tight and their torques recorded; the lanyard is fitted; no cable is under strain.
+- **S8. Before any installation on a bridge (outside this plan).** The owner's written permission; a trained crew of at least two; fall protection and a rescue plan for work over water; traffic management where needed; the lanyard fitted to its anchor, a second girder clamp rated for 100 kg or more working load on the bottom flange at least 150 mm along the span from the foot clamps, with no more than 25 mm of slack; the FieldNode's bands replaced by stainless banding with one-way crimped buckles. Never work alone.
 
 ## 7. Tools, skills and workspace
 
@@ -446,11 +471,11 @@ Stop at each point. Carry on only when everything listed is true.
 
 ## 8. Where the numbers come from
 
-- Model and constructability checks: `cad/src/model.py` (`python cad/src/model.py --check`, 75 checks); STEP and STL exports in `cad/step/` and `cad/stl/`.
+- Model and constructability checks: `cad/src/model.py` (`python cad/src/model.py --check`, 91 checks); STEP and STL exports in `cad/step/` and `cad/stl/`.
 - Pictures: `cad/src/build_plan_media.py`, using `.kit/build_views.py`; written to `docs/05-build-plan/` and `cad/drawings/BRP-DWG-101` to `BRP-DWG-107`.
-- General arrangement: `cad/drawings/BRP-DWG-001.pdf`, Rev P5.
-- Calculations: `docs/04-calcs/01-sizing.md` (BRP-CAL-001 v0.3) and `docs/04-calcs/sizing.py`; mass [H1], mount stiffness [H2], retention [H4], root fillets [H4b], depth below the girder [H5], FieldNode on the post [H7], [H8], power [F2], [F3], cost [K1].
+- General arrangement: `cad/drawings/BRP-DWG-001.pdf`, Rev P6.
+- Calculations: `docs/04-calcs/01-sizing.md` (BRP-CAL-001 v0.6) and `docs/04-calcs/sizing.py`; mass [H1], mount stiffness [H2], retention [H4], lanyard [H4a], [H4c], root fillets [H4b], depth below the girder [H5], FieldNode on the post [H7], [H8], power [F2], [F3], cost [K1].
 - Bill of materials: `bom/bom.csv` and `bom/bom-notes.md`.
-- Decisions: `docs/decisions/0004-design-for-construction.md` (BRP-DDR-004), with BRP-DDR-001 to BRP-DDR-003; open items in `docs/06-design-decisions.md` (BRP-DEC-001).
-- Requirements: `docs/03-requirements.md` (BRP-REQ-001 v0.5).
+- Decisions: `docs/decisions/0004-design-for-construction.md` (BRP-DDR-004), with BRP-DDR-001 to BRP-DDR-003; decisions and items to confirm in `docs/06-design-decisions.md` (BRP-DEC-001).
+- Requirements: `docs/03-requirements.md` (BRP-REQ-001 v0.8).
 - FieldNode core: FieldNode's build plan FND-BLD-001, in the FieldNode repository.

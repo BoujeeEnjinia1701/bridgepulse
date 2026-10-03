@@ -1,4 +1,4 @@
-"""BridgePulse sizing calculations, BRP-CAL-001 v0.3 (TRL 3).
+"""BridgePulse sizing calculations, BRP-CAL-001 v0.6 (TRL 3).
 
 Run from the repo root:  python docs/04-calcs/sizing.py
 Prints every number quoted in docs/04-calcs/01-sizing.md. Each line carries a tag such as
@@ -21,7 +21,7 @@ warnings.simplefilter("ignore", optimize.OptimizeWarning)
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "cad" / "src"))
-from model import PARAMS as P, derived, build_parts, volumes, DENSITY  # noqa: E402
+from model import PARAMS as P, derived, build_parts, volumes, lanyard_geometry, DENSITY  # noqa: E402
 
 D = derived(P)
 G = 9.80665
@@ -55,7 +55,7 @@ V_RAIL, ETA_HUB, ETA_FN = 5.0, 0.85, 0.90
 T_WARM, T_PROC = 20.0, 60.0  # s gauge warm-up before the record; s post-processing after it
 FN_ALLOW = 100.0           # mW, FieldNode sensor allowance (FND-CAL-001 design value; 115 mW ceiling)
 
-print("BridgePulse sizing, BRP-CAL-001 v0.2")
+print("BridgePulse sizing, BRP-CAL-001 v0.6")
 print(f"Geometry from cad/src/model.py: girders {P['girder']} mm at +/-{P['gy']:.0f} mm, bearing span {P['bearing_span']:.0f} mm")
 
 # ------------------------------------------------------------------ A. Example bridge dynamics (R2, R3)
@@ -378,10 +378,13 @@ m_shell = V["hub_shell"] * DENSITY["al"]
 m_hub = m_shell + 0.10
 m_plate = V["plate"] * DENSITY["al"]
 m_other = V["mount_al"] * DENSITY["al"] + V["mount_steel"] * DENSITY["steel"]
+m_lan = V["lanyard"] * DENSITY["steel"]
+m_gird = m_hub + m_plate + m_other + m_lan
 tag("H1", f"Hub {m_hub:.2f} kg (die-cast shell {m_shell:.2f} kg, boards 0.10 kg assumed); plate {m_plate:.2f} kg; "
           f"foot blocks, jaws, packers, jack block, jack screw and fixings {m_other:.2f} kg "
           f"({V['mount_al'] * DENSITY['al']:.2f} kg aluminium, {V['mount_steel'] * DENSITY['steel']:.2f} kg steel); "
-          f"on the girder {m_hub + m_plate + m_other:.2f} kg; FieldNode core 2.41 kg (FND-CAL-001)")
+          f"lanyard girder clamp, pad eye and wire {m_lan:.2f} kg; "
+          f"on the girder {m_gird:.2f} kg; FieldNode core 2.41 kg (FND-CAL-001)")
 E_al = 69e9
 b_, t_, Lp = P["plate_w"] / 1000, P["plate_t"] / 1000, D["plate_h"] / 1000
 Ip = b_ * t_ ** 3 / 12
@@ -400,7 +403,29 @@ m2 = m_hub + 0.25 * 0.26 * 0.26 * 0.006 * 7950
 f_cant = math.sqrt(k_cant / m2) / (2 * math.pi)
 tag("H3", f"TRL 2 arrangement (6 mm stainless plate held only at the bottom flange, hub {L2 * 1000:.0f} mm up): {f_cant:.0f} Hz, inside the measured band")
 tag("H4", "Retention: each foot block is clamped to the bottom flange by a steel jaw under the flange, a packer outside the tip and an "
-          "M10 bolt; the jack screw bears on the top flange; the lanyard is the second path (anchor open, BRP-DEC-001)")
+          "M10 bolt; the jack screw bears on the top flange; the lanyard to an independent girder clamp is the second path")
+# Lanyard and girder clamp rating (BRP-DEC-001, 2026-10-02). If the mount lets go, everything on the
+# plate falls until the lanyard takes it up. Energy method for a mass dropped onto an elastic line:
+# F = W (1 + sqrt(1 + 2 h k / W)), with k = E A / L for the wire.
+LAN = lanyard_geometry(P)
+SLACK = 0.025              # m, most slack allowed when the lanyard is fitted (fitting rule)
+E_ROPE = 100e9             # Pa, effective modulus of 7 x 7 stainless wire rope (assumed)
+A_ROPE = 0.53 * math.pi / 4 * (2 * P["lan_r"] / 1000) ** 2   # m2, metallic area, 7 x 7 fill factor 0.53 (assumed)
+MBL_ROPE = 4.8e3           # N, minimum breaking load of 3 mm 7 x 7 stainless rope (typical catalogue value, assumed)
+SF_CLAMP = 4.0             # maker's design factor between working load limit and ultimate load (typical)
+m_fall = m_hub + m_plate + m_other
+W_fall = m_fall * G
+L_lan = LAN["length"] / 1000
+k_lan = E_ROPE * A_ROPE / L_lan
+F_pk = W_fall * (1 + math.sqrt(1 + 2 * SLACK * k_lan / W_fall))
+DF = F_pk / W_fall
+wll_need = F_pk / SF_CLAMP / G
+tag("H4a", f"Lanyard: 3 mm 7 x 7 stainless wire, {LAN['length']:.0f} mm between the pad eye and the girder clamp eye "
+           f"(straight run {LAN['run_len']:.0f} mm), clamp {LAN['clear_x']:.0f} mm clear of the foot clamps along the span; "
+           f"falling mass {m_fall:.2f} kg ({W_fall:.0f} N), slack {SLACK * 1000:.0f} mm at most, wire stiffness {k_lan / 1e6:.2f} kN/mm")
+tag("H4c", f"Peak lanyard load if the mount lets go: {F_pk / 1000:.2f} kN, a dynamic factor of {DF:.0f} on the {W_fall:.0f} N weight; "
+           f"with the maker's usual {SF_CLAMP:.0f}:1 design factor the girder clamp needs a working load limit of {wll_need:.0f} kg or more "
+           f"(specified: 100 kg or more); the wire's breaking load ({MBL_ROPE / 1000:.1f} kN, assumed) is {MBL_ROPE / F_pk:.1f} times the peak")
 tag("H4b", f"Root fillets (IPE 360, {P['root_r']:.0f} mm): plate ends {P['fillet_gap']:.0f} mm from each flange; foot blocks chamfered "
            f"{P['foot'][3]:.0f} mm over the fillet; checked in cad/src/model.py --check")
 shapes = build_parts(P)

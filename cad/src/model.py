@@ -17,8 +17,10 @@ flat against the outer face of the south girder's web, clear of the root fillets
 Two stepped foot blocks, screwed to the plate's front face, stand on the bottom flange and are
 clamped to it at the flange tip by a steel jaw, a packer and an M10 bolt. A jack block at the top
 of the plate carries an M12 jack screw that bears on the underside of the top flange. The hub's
-base is screwed flat to the plate by four M5 screws from inside the box. Nothing is drilled or
-welded into the structure.
+base is screwed flat to the plate by four M5 screws from inside the box. A 3 mm stainless wire
+lanyard runs from a pad eye on the plate to a second, independent load-rated girder clamp on the
+bottom flange tip, 150 mm or more along the span from the foot clamps (BRP-DEC-001, decided
+2026-10-02). Nothing is drilled or welded into the structure.
 
 build_components() returns every made, bought and fixing component by name (the build plan
 pictures and the checks use it); build_parts() groups them by BOM line for the concept media and
@@ -63,6 +65,13 @@ PARAMS = {
     "foot_over": 23.0,                            # foot block tail runs this far past the flange tip
     "bolt_out": 10.0,                             # clamp bolt axis out from the flange tip
     "packer_od": 16.0,
+    # lanyard (second retention path, BRP-DEC-001 2026-10-02): stainless pad eye on the plate, 3 mm
+    # stainless wire lanyard, bought load-rated girder clamp on the south bottom flange tip
+    "pad_eye": (-62.0, 30.0),                     # pad eye centre: x, distance below the plate's top edge
+    "pad_eye_size": (38.0, 2.5, 22.0, 14.0),      # base along X, base thickness, base height, loop width
+    "lan_clamp_x": -275.0,                        # girder clamp centre along the span (150 mm or more clear of the foot clamps)
+    "lan_clamp": (40.0, 30.0, 8.0, 10.0),         # body width (X), reach in from the tip, lower jaw thickness, upper jaw thickness
+    "lan_r": 1.5,                                 # lanyard wire radius (3 mm wire rope)
     # 2 accelerometer board, 3 signal board (inside the hub): size along X, thickness, size along Z
     "acc_board": (40.0, 2.0, 40.0), "acc_xz": (-50.0, 0.0), "acc_spacer": 5.0,
     "sig_board": (92.0, 1.6, 68.0), "sig_xz": (20.0, 0.0), "sig_standoff": 14.0,
@@ -199,6 +208,35 @@ def far_cable_inner(p=PARAMS):
     return p["gy"] - bf / 2 - p["cable_r"] - 3
 
 
+def lanyard_geometry(p=PARAMS):
+    """Pad eye and girder clamp eye positions and the lanyard's centreline: a thimble loop round the
+    pad eye's bar, a straight run, and a thimble loop round the clamp's eye (BRP-DEC-001, 2026-10-02)."""
+    D = derived(p)
+    d, bf, tf, tw = p["girder"]
+    pex, pedz = p["pad_eye"]
+    pez = D["plate_z1"] - pedz
+    pbx, pbt, pbh, plw = p["pad_eye_size"]
+    eye_r = 2.5                                                   # pad eye loop: 5 mm round bar
+    lr = p["lan_r"]
+    pe_bar_y = D["web_face"] - p["plate_t"] - pbt - 7.0 - eye_r   # 7 mm opening in front of the base
+    c = eye_r + lr + 0.02                                         # wire bears on the bar (0.02 mm modelling gap)
+    yi, yo, zt = pe_bar_y + c, pe_bar_y - c, pez + c
+    pe_loop = [(pex, yo, pez - 12), (pex, yo, zt), (pex, yi, zt), (pex, yi, pez - 12)]
+    lcx = p["lan_clamp_x"]
+    yback0 = D["tip"] - 1.0 - 8.0
+    cer = eye_r + 1.5                                             # clamp eye: 8 mm round bar
+    cl_bar_y = yback0 - 8.0 - cer
+    cl_eye_z = p["g_z0"] + tf / 2
+    c2 = cer + lr + 0.02
+    ci, co, zb = cl_bar_y + c2, cl_bar_y - c2, cl_eye_z - c2
+    cl_loop = [(lcx, co, cl_eye_z + 12), (lcx, co, zb), (lcx, ci, zb), (lcx, ci, cl_eye_z + 12)]
+    run = [(pex, yi, pez - 12), (lcx, ci, cl_eye_z + 12)]
+    length = sum(math.dist(a, c_) for pts in (pe_loop, run, cl_loop) for a, c_ in zip(pts, pts[1:]))
+    return {"pez": pez, "eye_r": eye_r, "pe_bar_y": pe_bar_y, "cl_bar_y": cl_bar_y, "cl_eye_z": cl_eye_z,
+            "pe_loop": pe_loop, "run": run, "cl_loop": cl_loop, "run_len": math.dist(*run), "length": length,
+            "clear_x": abs(lcx) - p["lan_clamp"][0] / 2 - (p["clamp_x"] + p["clamp"][0] / 2)}
+
+
 def i_girder(p, y, x0, x1, fillets=True):
     """Rolled I girder from x0 to x1, with root fillets between the web and the flanges."""
     b = _b()
@@ -267,7 +305,10 @@ def build_components(p=PARAMS):
     holes += [cyl_y(cx + dx, wf - pt - 1, wf + 1, fz, 3.0) for cx in (-p["clamp_x"], p["clamp_x"]) for dx in (-10, 10)]  # M6 tapped
     jz = pz1 - p["tab"][2] / 2
     holes += [cyl_y(dx, wf - pt - 1, wf + 1, jz, 3.0) for dx in (-12, 12)]                                       # M6 tapped
-    holes.append(cyl_y(-85, wf - pt - 1, wf + 1, pz1 - 20, 3.25))                                               # lanyard 6.5
+    pex, pedz = p["pad_eye"]
+    pez = pz1 - pedz
+    pe_hole = p["pad_eye_size"][0] / 2 - 5                                                                       # pad eye screw offset
+    holes += [cyl_y(pex + dx, wf - pt - 1, wf + 1, pez, 2.5) for dx in (-pe_hole, pe_hole)]                   # M5 tapped, pad eye
     for h in holes:
         plate = plate - h
     add("plate", "Mounting plate", plate, 4, "made", "mount")
@@ -321,6 +362,47 @@ def build_components(p=PARAMS):
     add("jack", "M12 jack screw and lock nut", jack, 4, "fixing", "mount", "steel")
     add("jack_screws", "M6 jack block screws (2)",
         fuse(_screw_y(dx, jz, jb_y1 + 6.5, wf - 1.5, 6.0) for dx in (-12, 12)), 4, "fixing", "mount", "steel")
+
+    # ---------------- lanyard: pad eye on the plate, wire lanyard, independent girder clamp
+    L = lanyard_geometry(p)
+    pbx, pbt, pbh, plw = p["pad_eye_size"]
+    pe_y0 = wf - pt                                                     # plate front face
+    pe_base = box(pex, pe_y0 - pbt / 2, pez, pbx, pbt, pbh)
+    for dx in (-pe_hole, pe_hole):
+        pe_base = pe_base - cyl_y(pex + dx, pe_y0 - pbt - 1, pe_y0 + 1, pez, 2.75)
+    lr_ = L["eye_r"]
+    yb_ = L["pe_bar_y"]
+    loop = (cyl_y(pex - plw / 2, pe_y0 - pbt, yb_, pez, lr_) + cyl_y(pex + plw / 2, pe_y0 - pbt, yb_, pez, lr_)
+            + cyl_x(pex - plw / 2, pex + plw / 2, yb_, pez, lr_)
+            + b.Pos(pex - plw / 2, yb_, pez) * b.Sphere(lr_) + b.Pos(pex + plw / 2, yb_, pez) * b.Sphere(lr_))
+    add("pad_eye", "Lanyard pad eye, stainless", pe_base + loop, 4, "bought", "mount", "steel")
+    add("pad_eye_screws", "M5 pad eye screws (2)",
+        fuse(_screw_y(pex + dx, pez, pe_y0 - pbt, wf - 1.5, 5.0) for dx in (-pe_hole, pe_hole)), 4, "fixing", "mount", "steel")
+    # bought girder clamp hooked on the south bottom flange tip: lower jaw under the flange, set
+    # screw and lock nut through the upper jaw bearing on the flange top, welded eye outside the tip
+    lcx = p["lan_clamp_x"]
+    lw, lreach, ljt, lut = p["lan_clamp"]
+    tip_ = D["tip"]
+    yback1 = tip_ - 1.0                                                 # inner face of the back, 1 mm off the tip
+    yback0 = yback1 - 8.0
+    yin = tip_ + lreach
+    u0 = ft + 8.0                                                       # upper jaw underside, 8 mm above the flange
+    cl = (box(lcx, (yback0 + yin) / 2, z0 - ljt / 2, lw, yin - yback0, ljt)
+          + box(lcx, (yback0 + yback1) / 2, (z0 - ljt + u0 + lut) / 2, lw, 8.0, u0 + lut - (z0 - ljt))
+          + box(lcx, (yback0 + yin) / 2, u0 + lut / 2, lw, yin - yback0, lut))
+    ssy = tip_ + 18.0
+    cl = cl - cyl_z(lcx, ssy, u0 - 1, u0 + lut + 1, 5.0)
+    er = L["eye_r"] + 1.5                                               # 8 mm round bar eye
+    ey_, ez_ = L["cl_bar_y"], L["cl_eye_z"]
+    eye = (cyl_y(lcx - 10, yback0 + 1, ey_, ez_, er) + cyl_y(lcx + 10, yback0 + 1, ey_, ez_, er)
+           + cyl_x(lcx - 10, lcx + 10, ey_, ez_, er) + b.Pos(lcx - 10, ey_, ez_) * b.Sphere(er)
+           + b.Pos(lcx + 10, ey_, ez_) * b.Sphere(er))
+    add("lan_clamp", "Lanyard girder clamp, load-rated", cl + eye, 4, "bought", "mount", "steel")
+    ss = (cyl_z(lcx, ssy, ft, u0 + lut + 15.0, 5.0) + cyl_z(lcx, ssy, u0 + lut, u0 + lut + 8.0, 8.5)
+          + cyl_z(lcx, ssy, u0 + lut + 8.0, u0 + lut + 15.0, 8.5))
+    add("lan_screw", "Girder clamp set screw and lock nut", ss, 4, "fixing", "mount", "steel")
+    add("lanyard", "Stainless wire lanyard, 3 mm", path(L["pe_loop"], p["lan_r"]) + path(L["run"], p["lan_r"])
+        + path(L["cl_loop"], p["lan_r"]), 4, "bought", "mount", "steel")
 
     # ---------------- 1 hub body (base on the plate, open at the front), lid, penetrations
     body = box(0, (y0 + by1) / 2, hzc, hx, abs(by1 - y0), hz) - box(0, (y0 - w + by1 - 1) / 2, hzc, hx - 2 * w, abs(by1 - 1 - y0 + w), hz - 2 * w)
@@ -537,6 +619,7 @@ def assembly(p=PARAMS):
 
 
 HUB_KEYS = ("plate", "feet", "jaws", "packers", "foot_bolts", "foot_screws", "jack_block", "jack", "jack_screws",
+            "pad_eye", "pad_eye_screws",
             "body", "lid", "glands", "probe_glands", "connector", "hub_screws", "acc_spacers", "acc",
             "sig_standoffs", "sig")
 
@@ -556,11 +639,13 @@ def installed(p=PARAMS, deck=False):
 
 def volumes(p=PARAMS):
     """Solid volumes (mm3) for the mass estimate in BRP-CAL-001: the hub shell (body, lid and
-    penetrations), the plate, the other aluminium mount parts and the steel mount parts."""
+    penetrations), the plate, the other aluminium mount parts, the steel mount parts and the
+    lanyard parts (pad eye, wire, girder clamp; all steel)."""
     C = build_components(p)
     v = lambda ks: sum(C[k].shape.volume for k in ks)  # noqa: E731
-    mount = [k for k, c in C.items() if c.group == "mount"]
-    return {"hub_shell": v(("body", "lid", "glands", "probe_glands", "connector")),
+    lan = ("pad_eye", "pad_eye_screws", "lan_clamp", "lan_screw", "lanyard")
+    mount = [k for k, c in C.items() if c.group == "mount" and k not in lan]
+    return {"lanyard": v(lan),"hub_shell": v(("body", "lid", "glands", "probe_glands", "connector")),
             "plate": C["plate"].shape.volume,
             "mount_al": v([k for k in mount if C[k].mat == "al" and k != "plate"]),
             "mount_steel": v([k for k in mount if C[k].mat == "steel"])}
@@ -612,6 +697,27 @@ def checks(p=PARAMS):
     chk("Jack screw bears on the top flange", S("jack"), G, "touch")
     chk("Jack screw in the jack block", S("jack"), S("jack_block"), "touch")
     chk("Jack block screws short of the web", S("jack_screws"), G, 1.0)
+    # lanyard: pad eye on the plate, wire, independent girder clamp (BRP-DEC-001, 2026-10-02)
+    chk("Pad eye flat on the plate", S("pad_eye"), S("plate"), "touch")
+    chk("Pad eye screws through the pad eye into the plate", S("pad_eye_screws"), S("pad_eye") + S("plate"), "touch")
+    chk("Pad eye screws short of the web", S("pad_eye_screws"), G, 1.0)
+    chk("Pad eye clear of the hub and the jack block", S("pad_eye") + S("pad_eye_screws"), S("body") + S("lid") + S("jack_block") + S("jack_screws"), 5.0)
+    chk("Lanyard girder clamp hooked on the bottom flange", S("lan_clamp"), G, "touch")
+    chk("Girder clamp set screw bears on the flange top", S("lan_screw"), G, "touch")
+    chk("Girder clamp set screw in the clamp", S("lan_screw"), S("lan_clamp"), "touch")
+    chk("Girder clamp 150 mm or more along the span from the foot clamps", S("lan_clamp") + S("lan_screw"),
+        S("feet") + S("jaws") + S("packers") + S("foot_bolts"), 150.0)
+    chk("Girder clamp clear of the steel probe and its clip", S("lan_clamp") + S("lan_screw"), S("steel_probe") + S("probe_clip"), 20.0)
+    chk("Girder clamp clear of the cables and leads", S("lan_clamp") + S("lan_screw"),
+        S("near_cable") + S("far_cable") + S("probe_leads") + S("fn_cable") + S("cable_clips"), 20.0)
+    chk("Lanyard through the pad eye", S("lanyard"), S("pad_eye"), "touch")
+    chk("Lanyard through the girder clamp's eye", S("lanyard"), S("lan_clamp"), "touch")
+    chk("Lanyard clear of the girder", S("lanyard"), G, 1.0)
+    chk("Lanyard clear of the hub", S("lanyard"), S("body") + S("lid") + S("glands") + S("probe_glands") + S("connector"), 1.0)
+    chk("Lanyard clear of the plate, foot clamps and jack", S("lanyard"),
+        fuse(S(k) for k in ("plate", "feet", "jaws", "packers", "foot_bolts", "foot_screws", "jack_block", "jack", "jack_screws", "lan_screw")), 1.0)
+    chk("Lanyard clear of the cables, leads and probes",
+        S("lanyard"), S("near_cable") + S("far_cable") + S("probe_leads") + S("fn_cable") + S("steel_probe") + S("probe_clip") + S("cable_clips"), 3.0)
     # hub
     chk("Hub base flat on the plate", S("body"), S("plate"), "touch")
     chk("Hub clear of the web and flanges", S("body") + S("lid"), G, 5.0)

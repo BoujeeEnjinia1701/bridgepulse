@@ -361,3 +361,62 @@ BRP-DDR-004 (design for construction) is accepted, with P12 subject to the Field
 3. The FieldNode candidate pinout is described in FieldNode's own records as 'for discussion only'; both repos are waiting on each other, so the decision needs to be made once, in FieldNode.
 
 No CAD model, BOM quantity or price, calculation result or picture was changed. TRL stays at 3; TRL 4 remains on hold.
+
+## Session 2026-10-02: approved follow-ups carried out
+
+Amish approved on 2026-10-02 that every follow-up action from the open-decision sign-off be carried out ("APPROVED CHANGES, COMPLETE THESE") and that the render scenes be prepared for new photoreal renders. TRL stays at 3; nothing here builds, tests or buys anything.
+
+### Follow-ups, one by one
+
+1. **Decision 1, FieldNode to confirm the square-post mount (P12).** Done in this repo: P12 stays conditional in BRP-DEC-001 (items to confirm, 5). The request to FieldNode is listed under Cross-repo actions below.
+2. **Decision 2, model.** Done. `cad/src/model.py` now has a stainless pad eye on two M5 screws at the top left of the plate, a 3 mm stainless wire lanyard with a thimble eye round the pad eye's loop and round the clamp's eye, and a bought single-flange girder clamp with an eye, set screw and lock nut hooked on the south bottom flange tip at x = -275 mm, 159 mm along the span from the nearer foot clamp. The plate's plain 6.5 mm lanyard hole is replaced by the two tapped M5 holes: with the plate flat on the web, a wire could not have passed through a plain hole. 16 new constructability checks (pad eye on the plate, screws short of the web, clamp on the flange, set screw on the flange top, 150 mm or more from the foot clamps, lanyard bearing on both eyes and clear of girder, hub, mount, cables and probes): **91 of 91 pass**. STEP and STL regenerated (`cad/step/`, `cad/stl/`); the pad eye is part of `sensor-hub.step`.
+3. **Decision 2, drawings.** Done. BRP-DWG-001 **Rev P6** shows the girder clamp and the lanyard in the front view, with the 159 mm clearance dimensioned, the pad eye in detail A and a line in the notes. Making sketch BRP-DWG-101 (mounting plate) **Rev P2** gives the pad eye holes in place of the lanyard hole. The clamp, pad eye and lanyard are bought, so they have no making sketch.
+4. **Decision 2, build plan pictures.** Done. New joint 10 (girder clamp on the flange) and new step 9 (lanyard and its girder clamp); the overview shows the lanyard as component 17; the plate hole layout shows the pad eye holes; steps 10 to 14 (were 9 to 13) show the fitted lanyard. All step pictures redrawn with the longer bench offcut needed for the clamp.
+5. **Decision 2, BOM.** Done. Line 4 ($40.00 to $59.00): girder clamp with a working load limit of 100 kg or more $12.00, pad eye and screws $3.00, made-up wire lanyard $6.00 in place of the $2.00 plain lanyard. Basis for each price in `bom/bom-notes.md`.
+6. **Decision 2, calculations.** Done. BRP-CAL-001 v0.6: H1 adds the lanyard parts (0.37 kg; **3.58 kg on the girder**, was 3.21 kg); H4a and H4c rate the lanyard and clamp: 3.21 kg falling onto 25 mm of slack in a 436 mm wire gives a **1.20 kN peak, a dynamic factor of 38**, so the clamp needs a working load limit of 30 kg or more at a 4:1 design factor (specified 100 kg or more) and the wire's assumed 4.8 kN breaking load is 4.0 times the peak; K adds the cost.
+7. **Decision 3, BOM.** Done. New line 10, installation banding for installed units only: two lengths of 12.7 x 0.76 mm stainless band and two one-way crimped buckles, $4.00; the bench unit keeps the worm-drive bands of line 8. The request to FieldNode is a cross-repo action.
+8. **Decision 5, pinout and register map.** The FieldNode request is a cross-repo action. **Not done:** the firmware's Modbus RTU register map, because firmware has not started; under the TRL 3 cap firmware beyond a labelled sketch is not allowed. It stays a follow-up for when firmware starts.
+9. **Decision 11, appearance model.** Done. `cad/src/product_model.py` rebuilt from `build_components()` so every part except the appearance hub shell (filleted box, lid, gasket, window, labels) is the constructable model's own geometry: plate, foot blocks, jaws, packers, bolts, jack block, jack screw, glands, connector, boards, probe and clip, gauges, the lanyard and its girder clamp, and the cables and flange clips on the model's routes, cut to a 640 mm girder section. RENDER_VIEWS kept (hero, exploded, detail). Render scenes exported with `.kit/export_views.py` to `/home/claude/renders/bridgepulse`: `bridgepulse__hero`, `__exploded` and `__detail` (.npz and .json each) and `bridgepulse__jobs.json`. Photoreal renders, `media/card.png` and `media/social-preview.png` are to be made on Amish's Mac.
+
+### Documents changed and new versions
+
+- `cad/src/model.py`, `cad/src/sheets.py`, `cad/src/build_plan_media.py`, `cad/src/concept_media.py`, `cad/src/product_model.py`, `docs/04-calcs/sizing.py`
+- `cad/drawings/BRP-DWG-001` Rev P6; `cad/drawings/BRP-DWG-101` Rev P2
+- `docs/04-calcs/01-sizing.md` (BRP-CAL-001 v0.6)
+- `docs/03-requirements.md` (BRP-REQ-001 v0.8)
+- `docs/02-concept.md` (BRP-PRC-001 v0.8)
+- `docs/05-build-plan.md` (BRP-BLD-001 v0.4): new section 3.11 and step 9, steps renumbered, bench offcuts about 650 mm (about 37 kg each), first check and safety stops S7 and S8 name the lanyard; the "pictures unchanged" note of v0.3 is gone
+- `docs/06-design-decisions.md` (BRP-DEC-001 v0.4): value engineering restated; item 8 to confirm (clamp rating, wire breaking load)
+- `docs/decisions/0004-design-for-construction.md` (BRP-DDR-004 v0.4): consequences updated
+- `bom/bom.csv`, `bom/bom-notes.md`, `README.md`
+- Pictures: `docs/05-build-plan/overview.png`, `plate-holes.png`, `joint-10.png` (new), `step-05.png` to `step-14.png` (`step-14.png` new); `media/hero.png`, `exploded.png`, `cutaway.png`, `concept-blueprint.*`, `model.glb`. The cutaway leaves the lanyard parts out, since its section plane would cut the clamp away from its wire.
+
+### Requirement status changes
+
+- **R12:** still over the value-engineering target, now by **$25.00** (was $2.00). Value-engineering target: USD 250.00. Estimated cost of the constructable design: USD 275.00 (USD 25.00 over the target). Complete monitor $401.00. `budget_usd` unchanged. The savings named in the register (consumer high-endurance card, cheaper accelerometer breakout) no longer close the gap on their own.
+- R9 stays met on paper: the girder clamp's lower jaw is 8 mm below the soffit, within the 10 mm worst case and the 15 mm limit.
+- No other status changes. Counts: 1 over the value-engineering target (R12), 2 at risk (R2, R10), 3 not verifiable at TRL 3, 4 met on paper, 3 met by design.
+- BRP-CAL-001 H3 now quotes the printed 75 Hz (the note said 77 Hz); a text correction, no status change.
+
+### Cross-repo actions (for the FieldNode repo; not edited here)
+
+- FieldNode to confirm the square-post mount without V-blocks and the band clamps one size longer, band about 300 to 330 mm (BRP-DDR-004, P12); until then P12 stays conditional.
+- FieldNode to adopt one-way crimped stainless banding for all its post installations, with worm-drive bands only on the bench (BRP-DEC-001, decision of 2026-10-02 on tamper resistance).
+- FieldNode to record its candidate pinout (pin 1 switched 5 V rail, pins 2 and 4 RS-485 A and B, pin 3 ground, pin 5 analog) and Modbus RTU as decided for every adopting project; its own records still call the pinout "for discussion only".
+
+### Proposed, awaiting Amish
+
+- Appearance deviations in `cad/src/product_model.py`: the hub is drawn as a filleted, powder-coated box with lid screws, a name plate, labels and the clear lid window (the window decided as a render aid on 2026-10-02); the cables, probe lead and clips are cut at the ends of the girder section; the lanyard is drawn taut. Recommendation: accept as appearance only.
+- R12 at $25.00 over the target: the girder clamp is the largest addition. Options: (a) accept the gap until TRL 4 quotes; (b) take the microSD saving now (about $10); (c) look for a cheaper rated clamp. Recommendation: (a) with (b), since the clamp is part of the safety case.
+
+### Safety
+
+The lanyard is now a real, rated second retention path that shares nothing with the foot clamps. Its peak load depends mostly on slack, so the build plan and safety stop S8 limit it to 25 mm; the clamp rating and the wire breaking load are assumed catalogue values to confirm when parts are bought (register item 8). The bench offcuts are now about 37 kg each; the plan says two people or a hoist.
+
+### Recommended next step
+
+Amish makes the photoreal renders from the exported scenes on his Mac, then runs `.kit/cards.py`. The FieldNode project takes up the three cross-repo actions. TRL stays at 3; TRL 4 remains on hold.
+
+## 2026-10-02: photoreal renders redone on the constructable design
+
+Rendered with Blender Cycles on Amish's Mac from the updated appearance model (`cad/src/product_model.py`); captioned with `.kit/photo_caption.py`; `media/card.png` and `media/social-preview.png` regenerated with `.kit/cards.py`. Views: hero, exploded, detail. image_qc passes. Appearance deviations are those logged above as proposed, awaiting Amish.

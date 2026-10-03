@@ -3,7 +3,7 @@ doc_id: BRP-DDR-004
 title: BridgePulse design for construction
 project: BridgePulse
 doc_type: Design decision record
-version: "0.3"
+version: "0.4"
 status: Draft
 date: '2026-10-02'
 author: Amish Chadha
@@ -21,6 +21,10 @@ revisions:
   date: '2026-10-02'
   author: Amish Chadha
   change: "Accepted by Amish on 2026-10-02, with P12 subject to FieldNode confirming the square-post mount; A2 to A5 decided as recommended"
+- version: "0.4"
+  date: '2026-10-02'
+  author: Amish Chadha
+  change: "A2 and A3 carried into the design: pad eye, wire lanyard and girder clamp in the model (91 checks), BOM line 4 and new line 10; the plate's plain lanyard hole replaced by two M5 holes for the pad eye; consequences updated"
 ---
 
 # 0004: Design for construction
@@ -78,8 +82,8 @@ The changes below keep what the monitor does: the same hub, boards, sensors, pos
 ## Consequences
 
 - `design_state: constructable` in `project.yaml`. The build plan BRP-BLD-001 shows every component and step in pictures generated from the model (`cad/src/build_plan_media.py`); the open items above are in the design decisions register BRP-DEC-001, not in the plan.
-- R12 moves from at risk to over the value-engineering target ($2.00 over); every other requirement keeps its status.
-- The photoreal renders (`media/render-*.png`), `media/card.png`, `media/social-preview.png` and the appearance model `cad/src/product_model.py` still show the concept mount and need updating on Amish's Mac.
+- R12 moves from at risk to over the value-engineering target ($2.00 over at v0.1; $25.00 over once the lanyard anchor and installation banding of A2 and A3 were priced on 2026-10-02); every other requirement keeps its status.
+- The appearance model `cad/src/product_model.py` was rebuilt on 2026-10-02 from the constructable model, with the lanyard, and its render scenes exported; the photoreal renders (`media/render-*.png`), `media/card.png` and `media/social-preview.png` are to be redone on Amish's Mac.
 - The FieldNode project is asked to confirm the square-post interface (no V-blocks, longer bands) and its own current mass and cost; nothing in the FieldNode repo is changed here.
-- With A2 accepted, the lanyard goes to a second, independent load-rated girder clamp on the bottom flange; the clamp is still to be added to BOM line 4, the model and the build plan pictures. With A3 accepted, installed units use one-way crimped stainless banding and the bench unit worm-drive bands. With A4 accepted, the far cable's support is chosen at the site survey.
+- With A2 accepted, the lanyard goes to a second, independent load-rated girder clamp on the bottom flange. Carried out on 2026-10-02: a stainless pad eye on two M5 screws replaces the plate's plain 6.5 mm lanyard hole, through which a wire could not pass with the plate flat on the web; a 3 mm stainless wire lanyard runs from it to a bought single-flange girder clamp on the south bottom flange tip, 159 mm along the span from the nearer foot clamp; all are in the model (91 constructability checks), BOM line 4 ($59.00), BRP-CAL-001 v0.6 (H1, H4a, H4c, K) and the build plan pictures. With A3 accepted, installed units use one-way crimped stainless banding (BOM line 10, $4.00) and the bench unit worm-drive bands. With A4 accepted, the far cable's support is chosen at the site survey.
 - TRL stays at 3; TRL 4 remains on hold. Nothing in this record authorizes building, testing or buying.
